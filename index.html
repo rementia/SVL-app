@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>英単語帳</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+      background: #ffffff;
+      color: #111;
+    }
+
+    body.loading {
+      visibility: hidden;
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    /* 上中央のVolボタン */
+    .top-bar {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      width: min(92vw, 700px);
+      padding: 0 8px;
+    }
+
+    .vol-btn {
+      font-size: 16px;
+      padding: 10px 18px;
+      border: 1px solid #bbb;
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+      min-width: 84px;
+      transition: 0.15s;
+    }
+
+    .vol-btn:hover {
+      background: #f2f2f2;
+    }
+
+    .vol-btn.active-vol {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    /* 左上の一覧開閉ボタン */
+    .toggle-btn {
+      position: absolute;
+      top: 14px;
+      left: 12px;
+      z-index: 35;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #bbb;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .toggle-btn:hover {
+      background: #f2f2f2;
+    }
+
+    /* 左の単語一覧 */
+    .sidebar {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: 140px;
+      height: calc(100vh - 70px);
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      background: #fafafa;
+      padding: 10px 8px 20px;
+      z-index: 15;
+      transition: transform 0.25s ease;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    .word-item {
+      padding: 10px 8px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .word-item:hover {
+      background: #ececec;
+    }
+
+    .word-item.active {
+      background: #dcdcdc;
+      font-weight: bold;
+    }
+
+    /* 中央メイン */
+    .main {
+      position: absolute;
+      top: 70px;
+      left: 140px;
+      width: calc(100% - 140px);
+      height: calc(100vh - 70px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      transition: left 0.25s ease, width 0.25s ease;
+    }
+
+    .main.full {
+      left: 0;
+      width: 100%;
+    }
+
+    .center-box {
+      width: min(92vw, 920px);
+      max-width: 920px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 12px;
+    }
+
+    .current-vol {
+      font-size: 14px;
+      color: #666;
+      letter-spacing: 0.08em;
+      margin-top: 10px;
+    }
+
+    #word {
+      font-size: clamp(34px, 6vw, 68px);
+      font-weight: 700;
+      line-height: 1.15;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+    }
+
+    #meaning {
+      font-size: clamp(22px, 3.4vw, 34px);
+      line-height: 1.5;
+      max-width: 100%;
+      word-break: break-word;
+    }
+
+    #image {
+      font-size: clamp(16px, 2.2vw, 22px);
+      color: #666;
+      line-height: 1.6;
+      max-width: min(92%, 760px);
+      word-break: break-word;
+      min-height: 2.5em;
+    }
+
+    .next-btn {
+      margin-top: 8px;
+      font-size: clamp(24px, 3vw, 34px);
+      padding: 18px 44px;
+      border: none;
+      border-radius: 16px;
+      background: #111;
+      color: white;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .next-btn:hover {
+      opacity: 0.92;
+    }
+
+    /* スマホ・タブレット */
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 110px;
+      }
+
+      .main {
+        left: 110px;
+        width: calc(100% - 110px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-bar {
+        top: 10px;
+        width: calc(100vw - 120px);
+        gap: 6px;
+      }
+
+      .vol-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+        min-width: 72px;
+      }
+
+      .toggle-btn {
+        top: 10px;
+        left: 10px;
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
+      .sidebar {
+        top: 60px;
+        width: 100px;
+        height: calc(100vh - 60px);
+        padding: 8px 6px 16px;
+      }
+
+      .main {
+        top: 60px;
+        left: 100px;
+        width: calc(100% - 100px);
+        height: calc(100vh - 60px);
+        padding: 12px;
+      }
+
+      .word-item {
+        font-size: 13px;
+        padding: 8px 6px;
+      }
+
+      .center-box {
+        width: min(96vw, 920px);
+        gap: 16px;
+      }
+
+      .next-btn {
+        padding: 16px 30px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .top-bar {
+        width: calc(100vw - 110px);
+      }
+
+      .center-box {
+        gap: 14px;
+      }
+
+      #word {
+        font-size: clamp(30px, 8vw, 52px);
+      }
+
+      #meaning {
+        font-size: clamp(20px, 5vw, 28px);
+      }
+    }
+  </style>
+</head>
+
+<body class="loading">
+  <div class="app">
+    <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
+
+    <div class="top-bar">
+      <button class="vol-btn" onclick="loadSheet('vol1')">Vol.1</button>
+      <button class="vol-btn" onclick="loadSheet('vol2')">Vol.2</button>
+      <button class="vol-btn" onclick="loadSheet('vol3')">Vol.3</button>
+      <button class="vol-btn" onclick="loadSheet('vol4')">Vol.4</button>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <div id="list"></div>
+    </div>
+
+    <main class="main" id="mainArea">
+      <div class="center-box">
+        <div class="current-vol" id="current">VOL1</div>
+        <div id="word">読み込み中...</div>
+        <div id="meaning"></div>
+        <div id="image"></div>
+        <button class="next-btn" onclick="nextWord()">次へ</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sheetUrls = {
+      vol1: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=0",
+      vol2: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=1906065075",
+      vol3: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=769789994",
+      vol4: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=297106222"
+    };
+
+    let words = [];
+    let index = 0;
+    let currentVol = "vol1";
+    let sidebarOpen = true;
+
+    async function loadSheet(name) {
+      try {
+        const res = await fetch(sheetUrls[name]);
+        const text = await res.text();
+
+        const lines = text
+          .trim()
+          .split("\n")
+          .map(line => line.trim())
+          .filter(line => line !== "");
+
+        words = lines.map(line => {
+          const [word, meaning] = line.split(",");
+          return {
+            word: (word || "").trim(),
+            meaning: (meaning || "").trim()
+          };
+        }).filter(item => item.word);
+
+        index = 0;
+        currentVol = name;
+
+        createList();
+        showWord();
+        updateCurrentVol();
+        updateVolButtons();
+
+        document.body.classList.remove("loading");
+      } catch (e) {
+        alert("読み込みに失敗しました。スプレッドシートの共有設定をご確認ください。");
+      }
+    }
+
+    function showWord() {
+      if (!words.length) return;
+
+      const current = words[index];
+      document.getElementById("word").textContent = current.word;
+      document.getElementById("meaning").textContent = current.meaning;
+      document.getElementById("image").textContent = "";
+      highlightActiveWord();
+      scrollActiveWordIntoView();
+    }
+
+    function nextWord() {
+      if (!words.length) return;
+      index = (index + 1) % words.length;
+      showWord();
+    }
+
+    function createList() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      words.forEach((w, i) => {
+        const div = document.createElement("div");
+        div.className = "word-item";
+        div.textContent = w.word;
+        div.onclick = () => {
+          index = i;
+          showWord();
+        };
+        list.appendChild(div);
+      });
+    }
+
+    function highlightActiveWord() {
+      const items = document.querySelectorAll(".word-item");
+      items.forEach((item, i) => {
+        item.classList.toggle("active", i === index);
+      });
+    }
+
+    function scrollActiveWordIntoView() {
+      const items = document.querySelectorAll(".word-item");
+      const active = items[index];
+      if (active) {
+        active.scrollIntoView({ block: "nearest" });
+      }
+    }
+
+    function updateCurrentVol() {
+      document.getElementById("current").textContent = currentVol.toUpperCase();
+    }
+
+    function updateVolButtons() {
+      const buttons = document.querySelectorAll(".vol-btn");
+      buttons.forEach(btn => btn.classList.remove("active-vol"));
+
+      const mapping = {
+        vol1: 0,
+        vol2: 1,
+        vol3: 2,
+        vol4: 3
+      };
+
+      const activeIndex = mapping[currentVol];
+      if (buttons[activeIndex]) {
+        buttons[activeIndex].classList.add("active-vol");
+      }
+    }
+
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+
+      const sidebar = document.getElementById("sidebar");
+      const mainArea = document.getElementById("mainArea");
+
+      if (sidebarOpen) {
+        sidebar.classList.remove("hidden");
+        mainArea.classList.remove("full");
+      } else {
+        sidebar.classList.add("hidden");
+        mainArea.classList.add("full");
+      }
+    }
+
+    loadSheet("vol1");
+  </script>
+</body>
+</html>
