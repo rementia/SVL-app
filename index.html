@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>英単語帳</title>
 
   <style>
@@ -10,7 +10,16 @@
       box-sizing: border-box;
     }
 
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, .word-item {
+      touch-action: manipulation;
+    }
+
     html, body {
+      touch-action: manipulation;
       margin: 0;
       padding: 0;
       width: 100%;
@@ -587,6 +596,15 @@
 
     loadSavedState();
     loadSheet(currentVol);
+    let lastTouchEnd = 0;
+    
+    document.addEventListener('touchend', function (event) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
   </script>
 </body>
 </html>
