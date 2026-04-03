@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>英単語帳</title>
+  <title>SVL</title>
 
+  <link rel="icon" href="SVL_icon.png">
+  <link rel="apple-touch-icon" href="SVL_icon.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <style>
     * {
       box-sizing: border-box;
@@ -43,6 +48,25 @@
     body.loading {
       visibility: hidden;
     }
+
+    #rotateNotice {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .rotate-box {
+      font-size: 20px;
+      color: #333;
+      text-align: center;
+}
 
     .app {
       position: relative;
@@ -335,6 +359,12 @@
       <div id="list"></div>
     </div>
 
+    <div id="rotateNotice">
+      <div class="rotate-box">
+        📱 横向きでご使用ください
+      </div>
+    </div>
+
     <main class="main" id="mainArea">
       <div class="center-box">
         <div class="current-vol" id="current">vol.1</div>
@@ -375,6 +405,22 @@
       vol3: 0,
       vol4: 0
     };
+
+    function checkOrientation() {
+      if (window.innerHeight > window.innerWidth) {
+        // 縦向き
+        document.getElementById("rotateNotice").style.display = "flex";
+      } else {
+        // 横向き
+        document.getElementById("rotateNotice").style.display = "none";
+      }
+    }
+
+    // 初回チェック
+    checkOrientation();
+
+    // 向き変更時
+    window.addEventListener("resize", checkOrientation);
 
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
