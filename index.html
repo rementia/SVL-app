@@ -11,10 +11,7 @@
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="apple-touch-icon" href="icon.png">
+  
   <style>
     * {
       box-sizing: border-box;
@@ -49,22 +46,6 @@
       background: #ffffff;
       color: #111;
     }
-    #rotateNotice {
-      position: fixed;
-      inset: 0;
-      background: #ffffff;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .rotate-box {
-    font-size: 22px;
-    color: #333;
-    text-align: center;
-    padding: 24px;
-  }
 
     body.loading {
       visibility: hidden;
@@ -347,9 +328,6 @@
 </head>
 
 <body class="loading">
-  <div id="rotateNotice">
-    <div class="rotate-box">横向き専用</div>
-  </div>
   <div class="app">
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
 
@@ -404,15 +382,6 @@
       vol3: 0,
       vol4: 0
     };
-
-    function checkOrientation() {
-      const isPortrait = window.innerHeight > window.innerWidth;
-      document.getElementById("rotateNotice").style.display = isPortrait ? "flex" : "none";
-    }
-
-    checkOrientation();
-    window.addEventListener("resize", checkOrientation);
-    window.addEventListener("orientationchange", checkOrientation);
 
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
