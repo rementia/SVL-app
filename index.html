@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
   <title>SVL</title>
 
   <link rel="icon" href="SVL_icon.png">
@@ -10,6 +11,10 @@
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="apple-touch-icon" href="icon.png">
   <style>
     * {
       box-sizing: border-box;
@@ -44,17 +49,9 @@
       background: #ffffff;
       color: #111;
     }
-
-    body.loading {
-      visibility: hidden;
-    }
-
     #rotateNotice {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background: #ffffff;
       display: none;
       align-items: center;
@@ -63,10 +60,15 @@
     }
 
     .rotate-box {
-      font-size: 20px;
-      color: #333;
-      text-align: center;
-}
+    font-size: 22px;
+    color: #333;
+    text-align: center;
+    padding: 24px;
+  }
+
+    body.loading {
+      visibility: hidden;
+    }
 
     .app {
       position: relative;
@@ -345,6 +347,9 @@
 </head>
 
 <body class="loading">
+  <div id="rotateNotice">
+    <div class="rotate-box">横向き専用</div>
+  </div>
   <div class="app">
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
 
@@ -357,12 +362,6 @@
 
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
-    </div>
-
-    <div id="rotateNotice">
-      <div class="rotate-box">
-        横向き専用
-      </div>
     </div>
 
     <main class="main" id="mainArea">
@@ -407,20 +406,13 @@
     };
 
     function checkOrientation() {
-      if (window.innerHeight > window.innerWidth) {
-        // 縦向き
-        document.getElementById("rotateNotice").style.display = "flex";
-      } else {
-        // 横向き
-        document.getElementById("rotateNotice").style.display = "none";
-      }
+      const isPortrait = window.innerHeight > window.innerWidth;
+      document.getElementById("rotateNotice").style.display = isPortrait ? "flex" : "none";
     }
 
-    // 初回チェック
     checkOrientation();
-
-    // 向き変更時
     window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
 
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
