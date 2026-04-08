@@ -412,6 +412,62 @@
       vol4: 0
     };
 
+    // ===== 分解データ =====
+    const splitMap = {
+      subject: ["sub", "ject"],
+      submit: ["sub", "mit"],
+      project: ["pro", "ject"],
+      object: ["ob", "ject"],
+      transport: ["trans", "port"]
+    };
+
+    // ===== パーツ意味 =====
+    const partMeaningMap = {
+      sub: "下に・下から",
+      pro: "前へ",
+      ob: "向かって",
+      trans: "越えて・向こうへ",
+      ject: "投げる",
+      port: "運ぶ",
+      mit: "送る・置く"
+    };
+
+    // ===== 語源メモ =====
+    const etymologyMap = {
+      window: "古い語に由来する単語で、分解より全体で覚える方が自然です。",
+      butter: "単語全体で覚えるタイプで、分解にはあまり向きません。"
+    };
+
+    // ===== コアイメージ生成 =====
+    function buildCoreImage(word) {
+      const w = word.toLowerCase();
+
+      // ① 分解できる場合
+      if (splitMap[w]) {
+        const parts = splitMap[w];
+
+        const partLines = parts.map(p => {
+          return `${p}：${partMeaningMap[p] || "（不明）"}`;
+        });
+
+        return `
+    ${parts.join(" - ")}
+
+    ${partLines.join("\n")}
+
+    → イメージをつなげて理解
+    `;
+      }
+
+      // ② 語源説明がある場合
+      if (etymologyMap[w]) {
+        return etymologyMap[w];
+      }
+
+      // ③ デフォルト
+      return `「${word}」は文の中で使いながら感覚で覚える単語です。`;
+    }
+
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
@@ -524,7 +580,7 @@
       updateNavHints();
     }
 
-    async function generateCoreImage() {
+    function generateCoreImage() {
       if (!words.length) return;
 
       const current = words[index];
@@ -537,45 +593,26 @@
         return;
       }
 
-      document.getElementById("image").textContent = "コアイメージ生成中...";
+      document.getElementById("image").textContent = "生成中...";
 
       try {
-        const res = await fetch("http://localhost:3001/api/core-image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ word: current.word })
-        });
+        const result = buildCoreImage(current.word);
 
-        const data = await res.json();
-        const result = data.result || "コアイメージを取得できませんでした。";
+        document.getElementById("image").textContent = result;
+        localStorage.setItem(cacheKey, result);
 
-        if (
-          !result.includes("APIエラー") &&
-          !result.includes("失敗") &&
-          !result.includes("制限中")
-        ) {
-          localStorage.setItem(cacheKey, result);
-        }
-
-        if (result.includes("APIエラー")) {
-          document.getElementById("image").textContent =
-            "無料枠制限中。少し待ってから再試行してください。";
-        } else {
-          document.getElementById("image").textContent = result;
-        }
       } catch (e) {
-        console.error("core-image error:", e);
-        document.getElementById("image").textContent = "コアイメージ取得失敗";
+        console.error(e);
+        document.getElementById("image").textContent =
+          "コアイメージ生成失敗";
       }
     }
 
     function prevWord() {
-  if (!words.length) return;
-  index = (index - 1 + words.length) % words.length;
-  showWord();
-}
+      if (!words.length) return;
+      index = (index - 1 + words.length) % words.length;
+      showWord();
+    }
 
     function nextWord() {
       if (!words.length) return;
