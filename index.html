@@ -391,11 +391,6 @@
           </div>
 
           <div class="nav-box">
-            <div class="nav-hint" id="imageHint"> </div>
-            <button class="main-btn sub-btn" onclick="generateCoreImage()">形態素（morpheme）</button>
-          </div>
-
-          <div class="nav-box">
             <div class="nav-hint" id="nextHint"></div>
             <button class="main-btn" onclick="nextWord()">進む</button>
           </div>
@@ -501,13 +496,6 @@
       }
 
       if (foundPrefix || foundSuffix) {
-        if (foundPrefix && foundSuffix && w.length > foundPrefix.length + foundSuffix.length) {
-          const middle = w.slice(foundPrefix.length, w.length - foundSuffix.length);
-          if (middle) {
-            lines.push(`のこり：${middle}`);
-          }
-        }
-
         lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
         return lines.join("\n");
       }
@@ -610,13 +598,16 @@
       document.getElementById("meaning").textContent = current.meaning;
 
       const cacheKey = getCurrentCacheKey();
-      const cached = cacheKey ? localStorage.getItem(cacheKey) : null;
+      let result = cacheKey ? localStorage.getItem(cacheKey) : null;
 
-      if (cached) {
-        document.getElementById("image").textContent = cached;
-      } else {
-        document.getElementById("image").textContent = "";
+      if (!result) {
+        result = buildCoreImage(current.word);
+        if (cacheKey) {
+          localStorage.setItem(cacheKey, result);
+        }
       }
+
+      document.getElementById("image").innerHTML = result || "";
 
       indexByVol[currentVol] = index;
       saveIndexByVol();
@@ -639,7 +630,7 @@
         return;
       }
 
-      document.getElementById("image").textContent = "生成中...";
+      document.getElementById("image").innerHTML = "生成中...";
 
       try {
         const result = buildCoreImage(current.word);
@@ -649,8 +640,7 @@
 
       } catch (e) {
         console.error(e);
-        document.getElementById("image").textContent =
-          "失敗";
+        document.getElementById("image").innerHTML = "失敗";
       }
     }
 
