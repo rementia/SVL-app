@@ -82,6 +82,31 @@
       border-color: #111;
     }
 
+    .parts-toggle-btn {
+      position: absolute;
+      top: 58px;
+      right: 12px;
+      z-index: 35;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #bbb;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .parts-toggle-btn:hover {
+      background: #f2f2f2;
+    }
+
+    .parts-panel.hidden{
+      display: none;
+    }
+
+    .main-layout.parts-closed{
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .toggle-btn {
       position: absolute;
       top: 14px;
@@ -338,6 +363,13 @@
         padding: 8px 12px;
       }
 
+      .parts-toggle-btn {
+        top: 48px;
+        right: 10px;
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
       .sidebar {
         top: 60px;
         width: 100px;
@@ -424,6 +456,7 @@
 <body class="loading">
   <div class="app">
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
+    <button class="parts-toggle-btn" onclick="togglePartsPanel()">形態素</button>
 
     <div class="top-bar">
       <button class="vol-btn" onclick="loadSheet('vol1')">vol.1</button>
@@ -473,7 +506,8 @@
     const STORAGE_KEYS = {
       vol: "tango_current_vol",
       indexByVol: "tango_index_by_vol",
-      sidebarOpen: "tango_sidebar_open"
+      sidebarOpen: "tango_sidebar_open",
+      partsOpen: "tango_parts_open"
     };
 
     const prefixMap = {
@@ -524,6 +558,7 @@
       vol3: 0,
       vol4: 0
     };
+    let partsOpen = true;
 
     function buildCoreImage(word) {
       const w = word.toLowerCase().trim();
@@ -556,6 +591,11 @@
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
       const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
+      const savedPartsOpen = localStorage.getItem(STORAGE_KEYS.partsOpen);
+
+      if(savedPartsOpen !== null) {
+        partsOpen = savedPartsOpen === "true";
+      }
 
       if (savedVol && sheetUrls[savedVol]) {
         currentVol = savedVol;
@@ -751,7 +791,31 @@
       applySidebarState();
     }
 
+    function savePartsPanelState() {
+      localStorage.setItem(STORAGE_KEYS.partsOpen, String(partsOpen));
+    }
+
+    function togglePartsPanel() {
+      partsOpen = !partsOpen;
+      savePartsState();
+      applyPartsState();
+    }
+
+    function applyPartsState() {
+      const panel = document.getElementById("partsPanel");
+      const mainArea = document.getElementById("main-layout");
+
+      if (partsOpen) {
+        panel.classList.remove("hidden");
+        mainArea.classList.remove("parts-closed");
+      } else {
+        panel.classList.add("hidden");
+        mainArea.classList.add("parts-closed");
+      }
+    }
+
     loadSavedState();
+    applyPartsState();
     loadSheet(currentVol);
 
     let lastTouchEnd = 0;
