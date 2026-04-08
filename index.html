@@ -172,10 +172,7 @@
       grid-template-columns: minmax(0, 1fr) 280px;
       gap: 24px;
       align-items: center;
-    }
-
-    .main-layout.parts-closed {
-      grid-template-columns: minmax(0, 1fr);
+      overflow: hidden;
     }
 
     .center-box {
@@ -201,10 +198,15 @@
       justify-content: center;
       padding: 18px 16px;
       border-left: 1px solid #e3e3e3;
+      transform: translateX(0);
+      opacity: 1;
+      transition: transform 0.25s ease, opacity 0.25s ease;
     }
 
     .parts-panel.hidden {
-      display: none;
+      transform: translateX(110%);
+      opacity: 0;
+      pointer-events: none;
     }
 
     .parts-title {
@@ -455,7 +457,7 @@
         </div>
 
         <aside class="parts-panel" id="partsPanel">
-          <div class="parts-title">morpheme</div>
+          <div class="parts-title">形態素</div>
           <div id="image"></div>
         </aside>
       </div>
@@ -539,15 +541,15 @@
       const lines = [];
 
       if (foundPrefix) {
-        lines.push(`接頭辞：${foundPrefix}（${prefixMap[foundPrefix]}）`);
+        lines.push(`接頭辞候補：${foundPrefix}（${prefixMap[foundPrefix]}）`);
       }
 
       if (foundSuffix) {
-        lines.push(`接尾辞：${foundSuffix}（${suffixMap[foundSuffix]}）`);
+        lines.push(`接尾辞候補：${foundSuffix}（${suffixMap[foundSuffix]}）`);
       }
 
       if (foundPrefix || foundSuffix) {
-        lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
+        lines.push(`<span class="hint-note">※ 確定ではなく候補です。</span>`);
         return lines.join("<br>");
       }
 
@@ -638,7 +640,7 @@
 
     function getCurrentCacheKey() {
       if (!words.length) return null;
-      return "core_" + words[index].word.toLowerCase().trim();
+      return "core_v2_" + words[index].word.toLowerCase().trim();
     }
 
     function updateNavHints() {
@@ -768,16 +770,12 @@
 
     function applyPartsState() {
       const panel = document.getElementById("partsPanel");
-      const mainLayout = document.getElementById("mainLayout");
-
-      if (!panel || !mainLayout) return;
+      if (!panel) return;
 
       if (partsOpen) {
         panel.classList.remove("hidden");
-        mainLayout.classList.remove("parts-closed");
       } else {
         panel.classList.add("hidden");
-        mainLayout.classList.add("parts-closed");
       }
     }
 
