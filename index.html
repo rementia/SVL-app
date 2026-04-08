@@ -139,19 +139,75 @@
     .main {
       position: absolute;
       top: 70px;
-      left: 140px;
-      width: calc(100% - 140px);
+      left: 0;
+      width: 100%;
       height: calc(100vh - 70px);
+      padding: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      transition: left 0.25s ease, width 0.25s ease;
     }
 
     .main.full {
       left: 0;
       width: 100%;
+    }
+
+    .main-layout {
+      width: min(96vw, 1280px);
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .center-box {
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 12px 24px;
+    }
+
+    .parts-panel {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 18px 16px;
+      border-left: 1px solid #e3e3e3;
+      min-width: 0;
+    }
+
+    .parts-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #666;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+
+    #image {
+      font-size: clamp(13px, 1.4vw, 17px);
+      color: #666;
+      line-height: 1.8;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      text-align: left;
+      min-height: 5.5em;
+    }
+
+    .hint-note {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.72em;
+      color: #888;
     }
 
     .center-box {
@@ -207,7 +263,7 @@
 
     .button-row {
       display: flex;
-      gap: 18px;
+      gap: 28px;
       flex-wrap: wrap;
       justify-content: center;
       align-items: flex-start;
@@ -218,7 +274,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      min-width: 140px;
+      min-width: 160px;
     }
 
     .nav-hint {
@@ -306,6 +362,19 @@
       .main-btn {
         padding: 14px 22px;
       }
+
+      .main-layout {
+        grid-template-columns: 1fr 220px;
+        gap: 14px;
+      }
+
+      .parts-panel {
+        padding: 12px 10px;
+      }
+
+      #image {
+        font-size: clamp(12px, 2vw, 15px);
+      }
     }
 
     @media (max-width: 520px) {
@@ -332,6 +401,18 @@
       .nav-hint {
         font-size: clamp(14px, 3.4vw, 18px);
       }
+      .main-layout {
+        grid-template-columns: 1fr 180px;
+        gap: 10px;
+      }
+
+      .parts-title {
+        font-size: 12px;
+      }
+
+      #image {
+        font-size: clamp(11px, 2.8vw, 13px);
+      }
     }
   </style>
 </head>
@@ -356,7 +437,6 @@
         <div class="current-vol" id="current">vol.1</div>
         <div id="word">読み込み中...</div>
         <div id="meaning"></div>
-        <div id="image"></div>
 
         <div class="button-row">
           <div class="nav-box">
@@ -365,15 +445,16 @@
           </div>
 
           <div class="nav-box">
-            <div class="nav-hint"></div>
-          </div>
-
-          <div class="nav-box">
             <div class="nav-hint" id="nextHint"></div>
             <button class="main-btn" onclick="nextWord()">進む</button>
           </div>
         </div>
       </div>
+
+      <aside class="parts-panel" id="partsPanel">
+        <div class="parts-title">語のパーツ</div>
+        <div id="image"></div>
+      </aside>
     </main>
   </div>
 
@@ -456,7 +537,7 @@
       }
 
       if (foundSuffix) {
-        lines.push(`語幹候補：${foundSuffix}（${suffixMap[foundSuffix]}）`);
+        lines.push(`接尾辞候補：${foundSuffix}（${suffixMap[foundSuffix]}）`);
       }
 
       if (foundPrefix || foundSuffix) {
@@ -652,14 +733,11 @@
 
     function applySidebarState() {
       const sidebar = document.getElementById("sidebar");
-      const mainArea = document.getElementById("mainArea");
 
       if (sidebarOpen) {
         sidebar.classList.remove("hidden");
-        mainArea.classList.remove("full");
       } else {
         sidebar.classList.add("hidden");
-        mainArea.classList.add("full");
       }
     }
 
