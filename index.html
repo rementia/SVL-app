@@ -375,7 +375,7 @@
 
           <div class="nav-box">
             <div class="nav-hint" id="imageHint"> </div>
-            <button class="main-btn sub-btn" onclick="generateCoreImage()">コアイメージ生成</button>
+            <button class="main-btn sub-btn" onclick="generateCoreImage()">形態素（morpheme）</button>
           </div>
 
           <div class="nav-box">
@@ -412,15 +412,6 @@
       vol4: 0
     };
 
-    // ===== 分解データ =====
-    const splitMap = {
-      subject: ["sub", "ject"],
-      submit: ["sub", "mit"],
-      project: ["pro", "ject"],
-      object: ["ob", "ject"],
-      transport: ["trans", "port"]
-    };
-
     // ===== パーツ意味 =====
     const partMeaningMap = {
       sub: "下に・下から",
@@ -432,42 +423,82 @@
       mit: "送る・置く"
     };
 
-    // ===== 語源メモ =====
-    const etymologyMap = {
-      window: "古い語に由来する単語で、分解より全体で覚える方が自然です。",
-      butter: "単語全体で覚えるタイプで、分解にはあまり向きません。"
-    };
+    const prefixMap = {
+      sub: "下に・下から",
+      pro: "前へ",
+      ob: "向かって",
+      trans: "越えて・向こうへ",
+      re: "再び・元に戻って",
+      de: "下へ・離れて",
+      con: "共に・一緒に",
+      com: "共に・一緒に",
+      in: "中へ・中に",
+      im: "中へ・中に",
+      ex: "外へ",
+      pre: "前もって",
+      inter: "間に",
+      dis: "離れて・打消し",
+      un: "打消し",
+    ad: "〜へ"
+  };
 
-    // ===== コアイメージ生成 =====
+    const suffixMap = {
+      ject: "投げる",
+      mit: "送る・置く",
+      port: "運ぶ",
+      spect: "見る",
+      struct: "積み上げる・組み立てる",
+      scribe: "書く",
+      script: "書かれたもの",
+      dict: "言う",
+      form: "形",
+      move: "動く",
+      pose: "置く",
+      press: "押す",
+      tract: "引く",
+      vent: "来る",
+      ceive: "受け取る",
+    tend: "伸ばす・向ける"
+  };
+
+    // ===== 形態素（morpheme） =====
     function buildCoreImage(word) {
-      const w = word.toLowerCase();
+      const w = word.toLowerCase().trim();
 
-      // ① 分解できる場合
-      if (splitMap[w]) {
-        const parts = splitMap[w];
+      const prefixes = Object.keys(prefixMap)
+        .sort((a, b) => b.length - a.length);
+      const suffixes = Object.keys(suffixMap)
+        .sort((a, b) => b.length - a.length);
 
-        const partLines = parts.map(p => {
-          return `${p}：${partMeaningMap[p] || "（不明）"}`;
-        });
+      const foundPrefix = prefixes.find(prefix => w.startsWith(prefix));
+      const foundSuffix = suffixes.find(suffix => w.endsWith(suffix));
 
-        return `
-    ${parts.join(" - ")}
+      const lines = [];
 
-    ${partLines.join("\n")}
-
-    → イメージをつなげて理解
-    `;
+      if (foundPrefix) {
+        lines.push(`接頭辞候補：${foundPrefix}`);
+        lines.push(`${foundPrefix}：${prefixMap[foundPrefix]}`);
       }
 
-      // ② 語源説明がある場合
-      if (etymologyMap[w]) {
-        return etymologyMap[w];
+      if (foundSuffix) {
+        lines.push(`接尾辞・語幹候補：${foundSuffix}`);
+        lines.push(`${foundSuffix}：${suffixMap[foundSuffix]}`);
       }
 
-      // ③ デフォルト
-      return `「${word}」は文の中で使いながら感覚で覚える単語です。`;
+      if (foundPrefix || foundSuffix) {
+        if (foundPrefix && foundSuffix && w.length > foundPrefix.length + foundSuffix.length) {
+          const middle = w.slice(foundPrefix.length, w.length - foundSuffix.length);
+          if (middle) {
+            lines.push(`のこり：${middle}`);
+          }
+        }
+
+        lines.push("※ これは確定ではなく候補です。");
+        return lines.join("\n");
+      }
+
+      return "";
     }
-
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
@@ -569,7 +600,7 @@
       if (cached) {
         document.getElementById("image").textContent = cached;
       } else {
-        document.getElementById("image").textContent = "コアイメージ未生成";
+        document.getElementById("image").textContent = "";
       }
 
       indexByVol[currentVol] = index;
@@ -604,7 +635,7 @@
       } catch (e) {
         console.error(e);
         document.getElementById("image").textContent =
-          "コアイメージ生成失敗";
+          "失敗";
       }
     }
 
