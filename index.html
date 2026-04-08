@@ -341,6 +341,12 @@
       #meaning {
         font-size: clamp(20px, 5vw, 28px);
       }
+
+      .hin-note {
+        margin-top: 10px;
+        font-size: 0.8em;
+        color: #777;
+      }
     }
   </style>
 </head>
@@ -476,13 +482,11 @@
       const lines = [];
 
       if (foundPrefix) {
-        lines.push(`接頭辞候補：${foundPrefix}`);
-        lines.push(`${foundPrefix}：${prefixMap[foundPrefix]}`);
+        lines.push(`接頭辞候補：${foundPrefix}(${prefixMap[foundPrefix]})`);
       }
 
       if (foundSuffix) {
-        lines.push(`接尾辞・語幹候補：${foundSuffix}`);
-        lines.push(`${foundSuffix}：${suffixMap[foundSuffix]}`);
+        lines.push(`接尾辞候補：${foundSuffix}(${suffixMap[foundSuffix]})`);
       }
 
       if (foundPrefix || foundSuffix) {
@@ -493,7 +497,7 @@
           }
         }
 
-        lines.push("※ これは確定ではなく候補です。");
+        lines.push(`<div class="hint-note">※ 確定ではなく候補</div>`);
         return lines.join("\n");
       }
 
@@ -629,7 +633,7 @@
       try {
         const result = buildCoreImage(current.word);
 
-        document.getElementById("image").textContent = result;
+        document.getElementById("image").innerHTML = result;
         localStorage.setItem(cacheKey, result);
 
       } catch (e) {
