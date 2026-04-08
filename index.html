@@ -157,7 +157,7 @@
       width: min(96vw, 1280px);
       height: 100%;
       display: grid;
-      grid-template-columns: 1fr 280px;
+      grid-template-columns: minmax(0, 1fr) 280px;
       gap: 24px;
       align-items: center;
     }
@@ -176,6 +176,9 @@
     }
 
     .parts-panel {
+      width: 280px;
+      min-width: 280px;
+      max-width: 280px;
       align-self: stretch;
       display: flex;
       flex-direction: column;
@@ -213,6 +216,7 @@
     .center-box {
       width: min(92vw, 920px);
       max-width: 920px;
+      min-width: 0;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -452,7 +456,7 @@
       </div>
 
       <aside class="parts-panel" id="partsPanel">
-        <div class="parts-title">語のパーツ</div>
+        <div class="parts-title">morpheme 形態素</div>
         <div id="image"></div>
       </aside>
     </main>
