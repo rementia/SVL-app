@@ -567,7 +567,10 @@
       const items = document.querySelectorAll(".word-item");
       const active = items[index];
       if (active) {
-        active.scrollIntoView({ block: "nearest" });
+        active.scrollIntoView({
+          block: "center",
+          behavior: "smooth"
+        });
       }
     }
 
