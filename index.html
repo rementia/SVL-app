@@ -470,6 +470,7 @@
     </div>
 
     <main class="main" id="mainArea">
+      <div class="main-layout" id="mainLayout">
       <div class="center-box">
         <div class="current-vol" id="current">vol.1</div>
         <div id="word">読み込み中...</div>
@@ -791,7 +792,7 @@
       applySidebarState();
     }
 
-    function savePartsPanelState() {
+    function savePartsState() {
       localStorage.setItem(STORAGE_KEYS.partsOpen, String(partsOpen));
     }
 
@@ -803,14 +804,16 @@
 
     function applyPartsState() {
       const panel = document.getElementById("partsPanel");
-      const mainArea = document.getElementById("main-layout");
+      const mainLayout = document.getElementById("mainLayout");
+
+      if (!panel || !mainLayout) return;
 
       if (partsOpen) {
         panel.classList.remove("hidden");
-        mainArea.classList.remove("parts-closed");
+        mainLayout.classList.remove("parts-closed");
       } else {
         panel.classList.add("hidden");
-        mainArea.classList.add("parts-closed");
+        mainLayout.classList.add("parts-closed");
       }
     }
 
