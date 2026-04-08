@@ -497,7 +497,7 @@
 
       if (foundPrefix || foundSuffix) {
         lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
-        return lines.join("\n");
+        return lines.join("<br>");
       }
 
       return "";
