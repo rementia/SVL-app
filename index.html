@@ -342,10 +342,21 @@
         font-size: clamp(20px, 5vw, 28px);
       }
 
+      #image {
+        font-size: clamp(16px, 2.2vw, 22px);
+        color: #666;
+        line-height: 1.6;
+        max-width: min(92%, 760px);
+        word-break: break-word;
+        min-height: 3em;
+        white-space: pre-line;
+}
+
       .hin-note {
+        display: block;
         margin-top: 10px;
-        font-size: 0.8em;
-        color: #777;
+        font-size: 0.75em;
+        color: #888;
       }
     }
   </style>
@@ -497,7 +508,7 @@
           }
         }
 
-        lines.push(`<div class="hint-note">※ 確定ではなく候補</div>`);
+        lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
         return lines.join("\n");
       }
 
@@ -624,7 +635,7 @@
 
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        document.getElementById("image").textContent = cached;
+        document.getElementById("image").innerHTML = cached;
         return;
       }
 
