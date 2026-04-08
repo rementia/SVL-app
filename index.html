@@ -245,6 +245,24 @@
       background: #e9e9e9;
       opacity: 1;
     }
+    
+    .nav-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 140px;
+    }
+
+    .nav-hint {
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 600;
+      color: #333;
+      min-height: 1.5em;
+      text-align: center;
+      word-break: break-word;
+      max-width: 180px;
+    }
 
     @media (max-width: 900px) {
       .sidebar {
@@ -350,9 +368,20 @@
         <div id="image">コアイメージ未生成</div>
 
         <div class="button-row">
-          <button class="main-btn" onclick="prevWord()">戻る</button>
-          <button class="main-btn sub-btn" onclick="generateCoreImage()">コアイメージ生成</button>
-          <button class="main-btn" onclick="nextWord()">進む</button>
+          <div class="nav-box">
+            <div class="nav-hint" id="prevHint"></div>
+            <button class="main-btn" onclick="prevWord()">戻る</button>
+          </div>
+
+          <div class="nav-box">
+            <div class="nav-hint" id="imageHint"> </div>
+            <button class="main-btn sub-btn" onclick="generateCoreImage()">コアイメージ生成</button>
+          </div>
+
+          <div class="nav-box">
+            <div class="nav-hint" id="nextHint"></div>
+            <button class="main-btn" onclick="nextWord()">進む</button>
+          </div>
         </div>
       </div>
     </main>
@@ -458,6 +487,19 @@
       return "core_" + words[index].word.toLowerCase().trim();
     }
 
+    function updateNavHints() {
+      if (!words.length) return;
+
+      const prevIndex = (index - 1 + words.length) % words.length;
+      const nextIndex = (index + 1) % words.length;
+
+      const prevHintEl = document.getElementById("prevHint");
+      const nextHintEl = document.getElementById("nextHint");
+
+      if (prevHintEl) prevHintEl.textContent = words[prevIndex].word;
+      if (nextHintEl) nextHintEl.textContent = words[nextIndex].word;
+    }
+
     function showWord() {
       if (!words.length) return;
 
@@ -479,6 +521,7 @@
 
       highlightActiveWord();
       scrollActiveWordIntoView();
+      updateNavHints();
     }
 
     async function generateCoreImage() {
