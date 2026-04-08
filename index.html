@@ -539,15 +539,15 @@
       const lines = [];
 
       if (foundPrefix) {
-        lines.push(`接頭辞候補：${foundPrefix}（${prefixMap[foundPrefix]}）`);
+        lines.push(`接頭辞：${foundPrefix}（${prefixMap[foundPrefix]}）`);
       }
 
       if (foundSuffix) {
-        lines.push(`接尾辞候補：${foundSuffix}（${suffixMap[foundSuffix]}）`);
+        lines.push(`接尾辞：${foundSuffix}（${suffixMap[foundSuffix]}）`);
       }
 
       if (foundPrefix || foundSuffix) {
-        lines.push(`<span class="hint-note">※ 確定ではなく候補です。</span>`);
+        lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
         return lines.join("<br>");
       }
 
