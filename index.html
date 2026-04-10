@@ -126,6 +126,15 @@
       opacity: 0.9;
     }
 
+    #pronunciation {
+      font-size: clamp(14px, 1.8vw, 20px);
+      color: #666;
+      min-height: 1.5em;
+      text-align: center;
+      word-break: break-word;
+      max-width: 180px;
+    }
+
     .parts-toggle-btn {
       position: absolute;
       top: 14px;
@@ -513,6 +522,7 @@
       .current-vol,
       .parts-title,
       #image,
+      #pronunciation,
       .hint-note {
         color: #bbb;
       }
@@ -563,7 +573,7 @@
             </div>
 
           <div class="nav-box">
-              <div class="nav-hint">&nbsp;</div>
+              <div class="nav-hint"></div>
               <button class="main-btn speak-btn" onclick="speakWord()">発音</button>
             </div>
 
@@ -836,6 +846,7 @@
       highlightActiveWord();
       scrollActiveWordIntoView();
       updateNavHints();
+      loadPronunciation(current.word);
 
       if (autoSpeak) {
         setTimeout(() => {
@@ -861,6 +872,44 @@
       utter.pitch = 1.0;
 
       speechSynthesis.speak(utter);
+    }
+
+    async function loadPronunciation(word) {
+      const key = "pron_" + word.toLowerCase().trim();
+      const pronunciationEl = document.getElementById("pronunciation");
+      if (!pronunciationEl) return;
+
+      const cached = localStorage.getItem(key);
+      if (cached !== null) {
+        pronunciationEl.textContent = cached;
+        return;
+      }
+
+      pronunciationEl.textContent = "";
+
+      try {
+        const res = await fetch(
+          `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`
+        );
+        const data = await res.json();
+
+        let phonetic = "";
+
+        if (Array.isArray(data) && data[0]) {
+          if (data[0].phonetic) {
+            phonetic = data[0].phonetic;
+          } else if (Array.isArray(data[0].phonetics)) {
+            const found = data[0].phonetics.find(item => item && item.text);
+            phonetic = found ? found.text : "";
+          }
+        }
+
+      pronunciationEl.textContent = phonetic;
+        localStorage.setItem(key, phonetic);
+      } catch (e) {
+        pronunciationEl.textContent = "";
+        localStorage.setItem(key, "");
+      }
     }
 
     function nextWord() {
