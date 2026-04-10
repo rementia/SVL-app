@@ -890,7 +890,9 @@
           }
         }
 
-      pronunciationEl.textContent = phonetic;
+        phonetic = phonetic.replace(/^\/|\/$/g, "");
+
+        pronunciationEl.textContent = phonetic;
         localStorage.setItem(key, phonetic);
       } catch (e) {
         pronunciationEl.textContent = "";
