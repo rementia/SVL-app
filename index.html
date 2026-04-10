@@ -99,6 +99,14 @@
       background: #f2f2f2;
     }
 
+    .speak-btn {
+      background: #2f7df6;
+    }
+
+    .speak-btn:hover {
+      opacity: 0.9;
+    }
+
     .parts-toggle-btn {
       position: absolute;
       top: 14px;
@@ -458,6 +466,11 @@
               <button class="main-btn" onclick="prevWord()">戻る</button>
             </div>
 
+          <div class="nav-box">
+              <div class="nav-hint">&nbsp;</div>
+              <button class="main-btn speak-btn" onclick="speakWord()">発音</button>
+            </div>
+
             <div class="nav-box">
               <div class="nav-hint" id="nextHint"></div>
               <button class="main-btn" onclick="nextWord()">進む</button>
@@ -696,6 +709,19 @@
       if (!words.length) return;
       index = (index - 1 + words.length) % words.length;
       showWord();
+    }
+
+    function speakWord() {
+      if (!words.length) return;
+
+      speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(words[index].word);
+      utter.lang = "en-US";
+      utter.rate = 0.9;
+      utter.pitch = 1.0;
+
+      speechSynthesis.speak(utter);
     }
 
     function nextWord() {
