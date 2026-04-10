@@ -99,6 +99,25 @@
       background: #f2f2f2;
     }
 
+    .auto-speak-btn {
+      position: absolute;
+      top: 14px;
+      left: 96px;
+      z-index: 35;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #bbb;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .auto-speak-btn.active {
+      background: #2f7df6;
+      color: #fff;
+      border-color: #2f7df6;
+    }
+
     .speak-btn {
       background: #2f7df6;
     }
@@ -344,6 +363,13 @@
         padding: 8px 12px;
       }
 
+      .auto-speak-btn {
+        top: 10px;
+        left: 86px;
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
       .sidebar {
         top: 60px;
         width: 100px;
@@ -440,6 +466,7 @@
 <body class="loading">
   <div class="app">
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
+    <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="parts-toggle-btn" onclick="togglePartsPanel()">形態素</button>
 
     <div class="top-bar">
@@ -538,12 +565,14 @@
       ceive: "受け取る",
       tend: "伸ばす・向ける"
     };
+    STORAGE_KEYS.autoSpeak = "tango_auto_speak";
 
     let words = [];
     let index = 0;
     let currentVol = "vol1";
     let sidebarOpen = true;
     let partsOpen = true;
+    let autoSpeak = false;
     let indexByVol = {
       vol1: 0,
       vol2: 0,
@@ -678,6 +707,41 @@
       if (nextHintEl) nextHintEl.textContent = words[nextIndex].word;
     }
 
+    function loadSavedState() {
+      const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
+      if (savedAutoSpeak !== null) {
+        autoSpeak = savedAutoSpeak === "true";
+      }
+      updateAutoSpeakButton();
+    }
+
+    function updateAutoSpeakButton() {
+      const btn = document.getElementById("autoSpeakBtn");
+      if (!btn) return;
+
+      btn.textContent = autoSpeak ? "自動発音：ON" : "自動発音：OFF";
+      btn.classList.toggle("active", autoSpeak);
+    }
+
+    function toggleAutoSpeak() {
+      autoSpeak = !autoSpeak;
+      localStorage.setItem(STORAGE_KEYS.autoSpeak, String(autoSpeak));
+      updateAutoSpeakButton();
+    }
+
+    function speakWord() {
+      if (!words.length) return;
+
+      speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(words[index].word);
+      utter.lang = "en-US";
+      utter.rate = 0.9;
+      utter.pitch = 1.0;
+
+      speechSynthesis.speak(utter);
+    }
+
     function showWord() {
       if (!words.length) return;
 
@@ -703,6 +767,12 @@
       highlightActiveWord();
       scrollActiveWordIntoView();
       updateNavHints();
+
+      if (autoSpeak) {
+        setTimeout(() => {
+          speakWord();
+        }, 150);
+      }
     }
 
     function prevWord() {
