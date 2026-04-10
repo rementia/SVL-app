@@ -573,7 +573,7 @@
             </div>
 
           <div class="nav-box">
-              <div class="nav-hint"></div>
+              <div id="pronunciation"></div>
               <button class="main-btn speak-btn" onclick="speakWord()">発音</button>
             </div>
 
@@ -691,6 +691,7 @@
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
       const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedPartsOpen = localStorage.getItem(STORAGE_KEYS.partsOpen);
+      const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
 
       if (savedVol && sheetUrls[savedVol]) {
         currentVol = savedVol;
@@ -704,12 +705,18 @@
         partsOpen = savedPartsOpen === "true";
       }
 
+      if (savedAutoSpeak !== null) {
+        autoSpeak = savedAutoSpeak === "true";
+      }
+
       if (savedIndexByVol) {
         try {
           const parsed = JSON.parse(savedIndexByVol);
           indexByVol = { ...indexByVol, ...parsed };
         } catch (e) {}
       }
+
+      updateAutoSpeakButton();
     }
 
     function saveCurrentVol() {
@@ -786,14 +793,6 @@
       if (nextHintEl) nextHintEl.textContent = words[nextIndex].word;
     }
 
-    function loadSavedState() {
-      const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
-      if (savedAutoSpeak !== null) {
-        autoSpeak = savedAutoSpeak === "true";
-      }
-      updateAutoSpeakButton();
-    }
-
     function updateAutoSpeakButton() {
       const btn = document.getElementById("autoSpeakBtn");
       if (!btn) return;
@@ -859,19 +858,6 @@
       if (!words.length) return;
       index = (index - 1 + words.length) % words.length;
       showWord();
-    }
-
-    function speakWord() {
-      if (!words.length) return;
-
-      speechSynthesis.cancel();
-
-      const utter = new SpeechSynthesisUtterance(words[index].word);
-      utter.lang = "en-US";
-      utter.rate = 0.9;
-      utter.pitch = 1.0;
-
-      speechSynthesis.speak(utter);
     }
 
     async function loadPronunciation(word) {
