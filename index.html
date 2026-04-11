@@ -796,8 +796,13 @@
         .filter((line) => line !== "")
         .map((line) => {
           const cols = line.split(",");
+
           const word = (cols.shift() || "").trim();
-          const meaning = cols.join(",").trim();
+
+          let meaning = cols.join(",").trim();
+
+      // 🔥 ここ追加（末尾のカンマ削除）
+          meaning = meaning.replace(/,+$/, "");
 
           return {
             word,
