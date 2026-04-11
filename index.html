@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
   <title>SVL</title>
 
-  <link rel="icon" href="SVL_icon.png">
-  <link rel="apple-touch-icon" href="SVL_icon.png">
+  <link rel="icon" href="SVL_icon.png" />
+  <link rel="apple-touch-icon" href="SVL_icon.png" />
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <style>
     * {
@@ -18,7 +17,8 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
+    html,
+    body {
       touch-action: manipulation;
       overflow: hidden;
       margin: 0;
@@ -30,7 +30,8 @@
       color: #111;
     }
 
-    button, .word-item {
+    button,
+    .word-item {
       touch-action: manipulation;
     }
 
@@ -57,11 +58,12 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      width: min(92vw, 700px);
+      width: min(92vw, 860px);
       padding: 0 8px;
     }
 
-    .vol-btn {
+    .vol-btn,
+    .favorite-list-btn {
       font-size: 16px;
       padding: 10px 18px;
       border: 1px solid #bbb;
@@ -72,20 +74,23 @@
       transition: 0.15s;
     }
 
-    .vol-btn:hover {
+    .vol-btn:hover,
+    .favorite-list-btn:hover {
       background: #f2f2f2;
     }
 
-    .vol-btn.active-vol {
+    .vol-btn.active-vol,
+    .favorite-list-btn.active-vol {
       background: #111;
       color: #fff;
       border-color: #111;
     }
 
-    .toggle-btn {
+    .toggle-btn,
+    .auto-speak-btn,
+    .parts-toggle-btn,
+    .favorite-toggle-btn {
       position: absolute;
-      top: 14px;
-      left: 12px;
       z-index: 35;
       font-size: 14px;
       padding: 10px 14px;
@@ -95,27 +100,45 @@
       cursor: pointer;
     }
 
-    .toggle-btn:hover {
+    .toggle-btn:hover,
+    .auto-speak-btn:hover,
+    .parts-toggle-btn:hover,
+    .favorite-toggle-btn:hover {
       background: #f2f2f2;
     }
 
+    .toggle-btn {
+      top: 14px;
+      left: 12px;
+    }
+
     .auto-speak-btn {
-      position: absolute;
       top: 14px;
       left: 96px;
-      z-index: 35;
-      font-size: 14px;
-      padding: 10px 14px;
-      border: 1px solid #bbb;
-      border-radius: 12px;
-      background: #fff;
-      cursor: pointer;
+    }
+
+    .parts-toggle-btn {
+      top: 14px;
+      right: 12px;
+    }
+
+    .favorite-toggle-btn {
+      top: 14px;
+      right: 92px;
+      min-width: 68px;
+      font-weight: 700;
     }
 
     .auto-speak-btn.active {
       background: #2f7df6;
       color: #fff;
       border-color: #2f7df6;
+    }
+
+    .favorite-toggle-btn.active {
+      background: #f5c542;
+      color: #111;
+      border-color: #f5c542;
     }
 
     .speak-btn {
@@ -126,37 +149,11 @@
       opacity: 0.9;
     }
 
-    #pronunciation {
-      font-size: clamp(14px, 1.8vw, 20px);
-      color: #666;
-      min-height: 1.5em;
-      text-align: center;
-      word-break: break-word;
-      max-width: 180px;
-    }
-
-    .parts-toggle-btn {
-      position: absolute;
-      top: 14px;
-      right: 12px;
-      z-index: 35;
-      font-size: 14px;
-      padding: 10px 14px;
-      border: 1px solid #bbb;
-      border-radius: 12px;
-      background: #fff;
-      cursor: pointer;
-    }
-
-    .parts-toggle-btn:hover {
-      background: #f2f2f2;
-    }
-
     .sidebar {
       position: absolute;
       top: 70px;
       left: 0;
-      width: 140px;
+      width: 150px;
       height: calc(100vh - 70px);
       border-right: 1px solid #ddd;
       overflow-y: auto;
@@ -178,6 +175,10 @@
       font-size: 15px;
       line-height: 1.2;
       word-break: break-word;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .word-item:hover {
@@ -187,6 +188,20 @@
     .word-item.active {
       background: #dcdcdc;
       font-weight: bold;
+    }
+
+    .word-label {
+      min-width: 0;
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .item-star {
+      flex-shrink: 0;
+      color: #d39e00;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.95;
     }
 
     .main {
@@ -280,6 +295,15 @@
       word-break: break-word;
     }
 
+    #pronunciation {
+      font-size: clamp(14px, 1.8vw, 20px);
+      color: #666;
+      min-height: 1.5em;
+      text-align: center;
+      word-break: break-word;
+      max-width: 180px;
+    }
+
     #image {
       font-size: clamp(13px, 1.4vw, 17px);
       color: #666;
@@ -339,26 +363,6 @@
       opacity: 0.92;
     }
 
-    .favorite-btn {
-      font-size: 16px;
-      padding: 10px 14px;
-      border: 1px solid #bbb;
-      border-radius: 999px;
-      background: #fff;
-      cursor: pointer;
-      transition: 0.15s;
-    }
-
-    .favorite-btn:hover {
-      background: #f2f2f2;
-    }
-
-    .favorite-btn.active {
-      background: #f5c542;
-      border-color: #f5c542;
-      color: #111;
-    }
-
     @media (max-width: 900px) {
       .sidebar {
         width: 110px;
@@ -372,31 +376,36 @@
         gap: 6px;
       }
 
-      .vol-btn {
+      .vol-btn,
+      .favorite-list-btn {
         font-size: 14px;
         padding: 8px 12px;
         min-width: 72px;
       }
 
-      .toggle-btn {
+      .toggle-btn,
+      .auto-speak-btn,
+      .parts-toggle-btn,
+      .favorite-toggle-btn {
         top: 10px;
-        left: 10px;
         font-size: 13px;
         padding: 8px 12px;
       }
 
-      .parts-toggle-btn {
-        top: 10px;
-        right: 10px;
-        font-size: 13px;
-        padding: 8px 12px;
+      .toggle-btn {
+        left: 10px;
       }
 
       .auto-speak-btn {
-        top: 10px;
         left: 86px;
-        font-size: 13px;
-        padding: 8px 12px;
+      }
+
+      .parts-toggle-btn {
+        right: 10px;
+      }
+
+      .favorite-toggle-btn {
+        right: 82px;
       }
 
       .sidebar {
@@ -489,14 +498,16 @@
         font-size: clamp(11px, 2.8vw, 13px);
       }
     }
-    
+
     @media (prefers-color-scheme: dark) {
-      html, body {
+      html,
+      body {
         background: #111;
         color: #eee;
       }
 
-      .app {
+      .app,
+      .parts-panel {
         background: #111;
       }
 
@@ -515,27 +526,39 @@
       }
 
       .vol-btn,
+      .favorite-list-btn,
       .toggle-btn,
-      .parts-toggle-btn {
+      .auto-speak-btn,
+      .parts-toggle-btn,
+      .favorite-toggle-btn {
         background: #1f1f1f;
         color: #eee;
         border-color: #444;
       }
 
       .vol-btn:hover,
+      .favorite-list-btn:hover,
       .toggle-btn:hover,
-      .parts-toggle-btn:hover {
+      .auto-speak-btn:hover,
+      .parts-toggle-btn:hover,
+      .favorite-toggle-btn:hover {
         background: #2a2a2a;
       }
 
-      .vol-btn.active-vol {
+      .vol-btn.active-vol,
+      .favorite-list-btn.active-vol {
         background: #eee;
         color: #111;
         border-color: #eee;
       }
 
+      .favorite-toggle-btn.active {
+        background: #f5c542;
+        color: #111;
+        border-color: #f5c542;
+      }
+
       .parts-panel {
-        background: #111;
         border-left: 1px solid #333;
       }
 
@@ -557,48 +580,30 @@
         background: #eaeaea;
         color: #111;
       }
-
-      .favorite-btn {
-        background: #1f1f1f;
-        color: #eee;
-        border-color: #444;
-      }
-
-      .favorite-btn:hover {
-        background: #2a2a2a;
-      }
-
-      .favorite-btn.active {
-        background: #f5c542;
-        color: #111;
-        border-color: #f5c542;
-      }
     }
-
   </style>
 </head>
-
 <body class="loading">
   <div class="app">
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
+    <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
     <button class="parts-toggle-btn" onclick="togglePartsPanel()">形態素</button>
 
     <div class="top-bar">
-      <button class="vol-btn" onclick="loadSheet('vol1')">vol.1</button>
-      <button class="vol-btn" onclick="loadSheet('vol2')">vol.2</button>
-      <button class="vol-btn" onclick="loadSheet('vol3')">vol.3</button>
-      <button class="vol-btn" onclick="loadSheet('vol4')">vol.4</button>
-
-      <button class="favorite-btn" id="fanvoriteBtn" onclick="toggleFavorite()">★</button>
+      <button class="vol-btn" data-vol="vol1" onclick="loadSheet('vol1')">vol.1</button>
+      <button class="vol-btn" data-vol="vol2" onclick="loadSheet('vol2')">vol.2</button>
+      <button class="vol-btn" data-vol="vol3" onclick="loadSheet('vol3')">vol.3</button>
+      <button class="vol-btn" data-vol="vol4" onclick="loadSheet('vol4')">vol.4</button>
+      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">お気に入り</button>
     </div>
 
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
     </div>
 
-    <main class="main" id="mainArea">
-      <div class="main-layout" id="mainLayout">
+    <main class="main">
+      <div class="main-layout">
         <div class="center-box">
           <div class="current-vol" id="current">vol.1</div>
           <div id="word">読み込み中...</div>
@@ -610,7 +615,7 @@
               <button class="main-btn" onclick="prevWord()">戻る</button>
             </div>
 
-          <div class="nav-box">
+            <div class="nav-box">
               <div id="pronunciation"></div>
               <button class="main-btn speak-btn" onclick="speakWord()">発音</button>
             </div>
@@ -631,6 +636,9 @@
   </div>
 
   <script>
+    // =========================
+    // Data sources
+    // =========================
     const sheetUrls = {
       vol1: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=0",
       vol2: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=1906065075",
@@ -638,14 +646,23 @@
       vol4: "https://docs.google.com/spreadsheets/d/1Kih8sWJwP1TgzUfQrHIAN-f0fiHCOrvNU3554A_DMK0/export?format=csv&gid=297106222"
     };
 
+    const volOrder = ["vol1", "vol2", "vol3", "vol4"];
+
+    // =========================
+    // Storage keys
+    // =========================
     const STORAGE_KEYS = {
       vol: "tango_current_vol",
       indexByVol: "tango_index_by_vol",
       sidebarOpen: "tango_sidebar_open",
       partsOpen: "tango_parts_open",
+      autoSpeak: "tango_auto_speak",
       favorites: "tango_favorites"
     };
 
+    // =========================
+    // Morpheme dictionaries
+    // =========================
     const prefixMap = {
       sub: "下に・下から",
       pro: "前へ",
@@ -683,55 +700,55 @@
       ceive: "受け取る",
       tend: "伸ばす・向ける"
     };
-    STORAGE_KEYS.autoSpeak = "tango_auto_speak";
+
+    // =========================
+    // App state
+    // =========================
+    let allWordsByVol = {
+      vol1: [],
+      vol2: [],
+      vol3: [],
+      vol4: []
+    };
 
     let words = [];
     let index = 0;
     let currentVol = "vol1";
+    let currentMode = "vol"; // 'vol' | 'favorites'
     let sidebarOpen = true;
     let partsOpen = true;
     let autoSpeak = false;
-    let favorites = [];
+    let favorites = {};
+
     let indexByVol = {
       vol1: 0,
       vol2: 0,
       vol3: 0,
-      vol4: 0
+      vol4: 0,
+      favorites: 0
     };
 
-    function buildCoreImage(word) {
-      const w = word.toLowerCase().trim();
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    let lastTouchEnd = 0;
 
-      const prefixes = Object.keys(prefixMap).sort((a, b) => b.length - a.length);
-      const suffixes = Object.keys(suffixMap).sort((a, b) => b.length - a.length);
-
-      const foundPrefix = prefixes.find(prefix => w.startsWith(prefix));
-      const foundSuffix = suffixes.find(suffix => w.endsWith(suffix));
-
-      const lines = [];
-
-      if (foundPrefix) {
-        lines.push(`接頭辞：${foundPrefix}（${prefixMap[foundPrefix]}）`);
-      }
-
-      if (foundSuffix) {
-        lines.push(`接尾辞：${foundSuffix}（${suffixMap[foundSuffix]}）`);
-      }
-
-      if (foundPrefix || foundSuffix) {
-        lines.push(`<span class="hint-note">※ 確定ではなく候補</span>`);
-        return lines.join("<br>");
-      }
-
-      return "";
+    // =========================
+    // Initialization
+    // =========================
+    function init() {
+      loadSavedState();
+      bindTouchEvents();
+      loadSheet(currentVol);
     }
 
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
-      const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedPartsOpen = localStorage.getItem(STORAGE_KEYS.partsOpen);
       const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
+      const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedFavorites = localStorage.getItem(STORAGE_KEYS.favorites);
 
       if (savedVol && sheetUrls[savedVol]) {
@@ -754,21 +771,62 @@
         try {
           const parsed = JSON.parse(savedIndexByVol);
           indexByVol = { ...indexByVol, ...parsed };
-        } catch (e) {}
+        } catch (error) {
+          console.warn("indexByVol restore failed", error);
+        }
       }
 
       if (savedFavorites) {
         try {
-          const parsed = JSON.parse(savedFavorites);
           favorites = JSON.parse(savedFavorites);
-        } catch (e) {
+        } catch (error) {
           favorites = {};
         }
       }
 
       updateAutoSpeakButton();
+      applySidebarState();
+      applyPartsState();
     }
 
+    function bindTouchEvents() {
+      document.addEventListener(
+        "touchstart",
+        function (event) {
+          const touch = event.changedTouches[0];
+          touchStartX = touch.screenX;
+          touchStartY = touch.screenY;
+        },
+        { passive: true }
+      );
+
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          const touch = event.changedTouches[0];
+          touchEndX = touch.screenX;
+          touchEndY = touch.screenY;
+          handleSwipe();
+        },
+        { passive: true }
+      );
+
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          const now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        { passive: false }
+      );
+    }
+
+    // =========================
+    // Storage helpers
+    // =========================
     function saveCurrentVol() {
       localStorage.setItem(STORAGE_KEYS.vol, currentVol);
     }
@@ -785,121 +843,179 @@
       localStorage.setItem(STORAGE_KEYS.partsOpen, String(partsOpen));
     }
 
+    function saveAutoSpeakState() {
+      localStorage.setItem(STORAGE_KEYS.autoSpeak, String(autoSpeak));
+    }
+
     function saveFavorites() {
       localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
     }
 
-    async function loadSheet(name) {
+    // =========================
+    // Favorite helpers
+    // =========================
+    function makeFavoriteKey(vol, word) {
+      return `${vol}::${String(word).toLowerCase().trim()}`;
+    }
+
+    function isFavorite(vol, word) {
+      return !!favorites[makeFavoriteKey(vol, word)];
+    }
+
+    function buildFavoriteEntries() {
+      const entries = [];
+
+      volOrder.forEach((vol) => {
+        const source = allWordsByVol[vol] || [];
+        source.forEach((item) => {
+          if (isFavorite(vol, item.word)) {
+            entries.push({
+              ...item,
+              sourceVol: vol
+            });
+          }
+        });
+      });
+
+      return entries;
+    }
+
+    function toggleFavoriteCurrentWord() {
+      const current = getCurrentWord();
+      if (!current || !current.sourceVol) return;
+
+      const key = makeFavoriteKey(current.sourceVol, current.word);
+
+      if (favorites[key]) {
+        delete favorites[key];
+      } else {
+        favorites[key] = true;
+      }
+
+      saveFavorites();
+      updateFavoriteToggleButton();
+      createList();
+
+      if (currentMode === "favorites") {
+        const currentWord = current.word;
+        const currentVolOfWord = current.sourceVol;
+        const favoriteEntries = buildFavoriteEntries();
+
+        if (favoriteEntries.length === 0) {
+          currentMode = "vol";
+          loadSheet(currentVol);
+          return;
+        }
+
+        words = favoriteEntries;
+        const newIndex = words.findIndex(
+          (item) => item.word === currentWord && item.sourceVol === currentVolOfWord
+        );
+        index = newIndex >= 0 ? newIndex : Math.min(index, words.length - 1);
+        indexByVol.favorites = index;
+        saveIndexByVol();
+        render();
+      }
+    }
+
+    function loadFavoritesMode() {
+      const favoriteEntries = buildFavoriteEntries();
+
+      if (favoriteEntries.length === 0) {
+        alert("お気に入りがまだありません。");
+        return;
+      }
+
+      currentMode = "favorites";
+      words = favoriteEntries;
+      index = Math.min(indexByVol.favorites || 0, words.length - 1);
+      render();
+    }
+
+    // =========================
+    // Data loading
+    // =========================
+    async function loadSheet(volName) {
       try {
-        currentVol = name;
+        currentMode = "vol";
+        currentVol = volName;
         saveCurrentVol();
 
-        const res = await fetch(sheetUrls[name]);
-        const text = await res.text();
+        if (!allWordsByVol[volName] || allWordsByVol[volName].length === 0) {
+          const response = await fetch(sheetUrls[volName]);
+          const text = await response.text();
+          allWordsByVol[volName] = parseCsvToWords(text, volName);
+        }
 
-        const lines = text
-          .trim()
-          .split("\n")
-          .map(line => line.trim())
-          .filter(line => line !== "");
-
-        words = lines.map(line => {
-          const [word, meaning] = line.split(",");
-          return {
-            word: (word || "").trim(),
-            meaning: (meaning || "").trim()
-          };
-        }).filter(item => item.word);
-
-        index = indexByVol[name] || 0;
-        if (index >= words.length) index = 0;
-
-        createList();
-        showWord();
-        updateCurrentVol();
-        updateVolButtons();
-        applySidebarState();
-        applyPartsState();
+        words = [...allWordsByVol[volName]];
+        index = Math.min(indexByVol[volName] || 0, Math.max(words.length - 1, 0));
+        render();
 
         document.body.classList.remove("loading");
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
         document.body.classList.remove("loading");
         alert("読み込みに失敗しました。スプレッドシートの共有設定をご確認ください。");
       }
     }
 
-    function getCurrentCacheKey() {
-      if (!words.length) return null;
-      return "core_v2_" + words[index].word.toLowerCase().trim();
+    function parseCsvToWords(text, volName) {
+      return text
+        .trim()
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line !== "")
+        .map((line) => {
+          const [word, meaning] = line.split(",");
+          return {
+            word: (word || "").trim(),
+            meaning: (meaning || "").trim(),
+            sourceVol: volName
+          };
+        })
+        .filter((item) => item.word);
     }
 
-    function updateNavHints() {
-      if (!words.length) return;
-
-      const prevIndex = (index - 1 + words.length) % words.length;
-      const nextIndex = (index + 1) % words.length;
-
-      const prevHintEl = document.getElementById("prevHint");
-      const nextHintEl = document.getElementById("nextHint");
-
-      if (prevHintEl) prevHintEl.textContent = words[prevIndex].word;
-      if (nextHintEl) nextHintEl.textContent = words[nextIndex].word;
-    }
-
-    function updateAutoSpeakButton() {
-      const btn = document.getElementById("autoSpeakBtn");
-      if (!btn) return;
-
-      btn.textContent = autoSpeak ? "自動発音：ON" : "自動発音：OFF";
-      btn.classList.toggle("active", autoSpeak);
-    }
-
-    function toggleAutoSpeak() {
-      autoSpeak = !autoSpeak;
-      localStorage.setItem(STORAGE_KEYS.autoSpeak, String(autoSpeak));
-      updateAutoSpeakButton();
-    }
-
-    function speakWord() {
-      if (!words.length) return;
-
-      speechSynthesis.cancel();
-
-      const utter = new SpeechSynthesisUtterance(words[index].word);
-      utter.lang = "en-US";
-      utter.rate = 0.9;
-      utter.pitch = 1.0;
-
-      speechSynthesis.speak(utter);
+    // =========================
+    // Render
+    // =========================
+    function render() {
+      createList();
+      showWord();
+      updateCurrentLabel();
+      updateTopButtons();
+      applySidebarState();
+      applyPartsState();
     }
 
     function showWord() {
-      if (!words.length) return;
-
-      const current = words[index];
-      document.getElementById("word").textContent = current.word;
-      document.getElementById("meaning").textContent = current.meaning;
-
-      const cacheKey = getCurrentCacheKey();
-      let result = cacheKey ? localStorage.getItem(cacheKey) : null;
-
-      if (!result) {
-        result = buildCoreImage(current.word);
-        if (cacheKey) {
-          localStorage.setItem(cacheKey, result);
-        }
+      const current = getCurrentWord();
+      if (!current) {
+        document.getElementById("word").textContent = "単語がありません";
+        document.getElementById("meaning").textContent = "";
+        document.getElementById("image").innerHTML = "";
+        document.getElementById("pronunciation").textContent = "";
+        document.getElementById("prevHint").textContent = "";
+        document.getElementById("nextHint").textContent = "";
+        updateFavoriteToggleButton();
+        return;
       }
 
-      document.getElementById("image").innerHTML = result || "";
+      document.getElementById("word").textContent = current.word;
+      document.getElementById("meaning").textContent = current.meaning;
+      document.getElementById("image").innerHTML = getCoreImage(current.word);
 
-      indexByVol[currentVol] = index;
+      if (currentMode === "vol") {
+        indexByVol[currentVol] = index;
+      } else {
+        indexByVol.favorites = index;
+      }
       saveIndexByVol();
 
       highlightActiveWord();
       scrollActiveWordIntoView();
       updateNavHints();
-      updateFavoriteButton();
+      updateFavoriteToggleButton();
       loadPronunciation(current.word);
 
       if (autoSpeak) {
@@ -909,14 +1025,185 @@
       }
     }
 
+    function createList() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      words.forEach((item, itemIndex) => {
+        const row = document.createElement("div");
+        row.className = "word-item";
+        row.onclick = () => {
+          index = itemIndex;
+          showWord();
+        };
+
+        const label = document.createElement("span");
+        label.className = "word-label";
+        label.textContent = currentMode === "favorites"
+          ? `${item.word} (${item.sourceVol.replace("vol", "vol.")})`
+          : item.word;
+
+        row.appendChild(label);
+
+        if (isFavorite(item.sourceVol, item.word)) {
+          const star = document.createElement("span");
+          star.className = "item-star";
+          star.textContent = "★";
+          row.appendChild(star);
+        }
+
+        list.appendChild(row);
+      });
+
+      highlightActiveWord();
+    }
+
+    function updateCurrentLabel() {
+      const currentEl = document.getElementById("current");
+      if (currentMode === "favorites") {
+        currentEl.textContent = "★お気に入り";
+        return;
+      }
+
+      const volNumber = currentVol.replace("vol", "");
+      currentEl.textContent = `vol.${volNumber}`;
+    }
+
+    function updateTopButtons() {
+      const volButtons = document.querySelectorAll(".vol-btn");
+      volButtons.forEach((button) => {
+        const isActive = currentMode === "vol" && button.dataset.vol === currentVol;
+        button.classList.toggle("active-vol", isActive);
+      });
+
+      document
+        .getElementById("favoriteListBtn")
+        .classList.toggle("active-vol", currentMode === "favorites");
+    }
+
+    function updateFavoriteToggleButton() {
+      const button = document.getElementById("favoriteToggleBtn");
+      const current = getCurrentWord();
+
+      if (!button || !current) return;
+
+      const active = isFavorite(current.sourceVol, current.word);
+      button.textContent = active ? "★" : "☆";
+      button.classList.toggle("active", active);
+      button.title = active ? "お気に入り解除" : "お気に入り登録";
+    }
+
+    function updateNavHints() {
+      if (!words.length) return;
+
+      const prevIndex = (index - 1 + words.length) % words.length;
+      const nextIndex = (index + 1) % words.length;
+
+      const prevItem = words[prevIndex];
+      const nextItem = words[nextIndex];
+
+      document.getElementById("prevHint").textContent = prevItem ? prevItem.word : "";
+      document.getElementById("nextHint").textContent = nextItem ? nextItem.word : "";
+    }
+
+    function updateAutoSpeakButton() {
+      const button = document.getElementById("autoSpeakBtn");
+      if (!button) return;
+
+      button.textContent = autoSpeak ? "自動発音：ON" : "自動発音：OFF";
+      button.classList.toggle("active", autoSpeak);
+    }
+
+    function highlightActiveWord() {
+      const items = document.querySelectorAll(".word-item");
+      items.forEach((item, itemIndex) => {
+        item.classList.toggle("active", itemIndex === index);
+      });
+    }
+
+    function scrollActiveWordIntoView() {
+      const items = document.querySelectorAll(".word-item");
+      const active = items[index];
+
+      if (active) {
+        active.scrollIntoView({
+          block: "center",
+          behavior: "smooth"
+        });
+      }
+    }
+
+    // =========================
+    // View state toggles
+    // =========================
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      saveSidebarState();
+      applySidebarState();
+    }
+
+    function applySidebarState() {
+      const sidebar = document.getElementById("sidebar");
+      if (!sidebar) return;
+      sidebar.classList.toggle("hidden", !sidebarOpen);
+    }
+
+    function togglePartsPanel() {
+      partsOpen = !partsOpen;
+      savePartsState();
+      applyPartsState();
+    }
+
+    function applyPartsState() {
+      const panel = document.getElementById("partsPanel");
+      if (!panel) return;
+      panel.classList.toggle("hidden", !partsOpen);
+    }
+
+    function toggleAutoSpeak() {
+      autoSpeak = !autoSpeak;
+      saveAutoSpeakState();
+      updateAutoSpeakButton();
+    }
+
+    // =========================
+    // Word navigation
+    // =========================
     function prevWord() {
       if (!words.length) return;
       index = (index - 1 + words.length) % words.length;
       showWord();
     }
 
+    function nextWord() {
+      if (!words.length) return;
+      index = (index + 1) % words.length;
+      showWord();
+    }
+
+    function getCurrentWord() {
+      return words[index] || null;
+    }
+
+    // =========================
+    // Speech
+    // =========================
+    function speakWord() {
+      const current = getCurrentWord();
+      if (!current) return;
+
+      speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(current.word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+
+      speechSynthesis.speak(utterance);
+    }
+
     async function loadPronunciation(word) {
-      const key = "pron_" + word.toLowerCase().trim();
+      const key = `pron_${String(word).toLowerCase().trim()}`;
       const pronunciationEl = document.getElementById("pronunciation");
       if (!pronunciationEl) return;
 
@@ -929,10 +1216,10 @@
       pronunciationEl.textContent = "";
 
       try {
-        const res = await fetch(
+        const response = await fetch(
           `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`
         );
-        const data = await res.json();
+        const data = await response.json();
 
         let phonetic = "";
 
@@ -940,211 +1227,79 @@
           if (data[0].phonetic) {
             phonetic = data[0].phonetic;
           } else if (Array.isArray(data[0].phonetics)) {
-            const found = data[0].phonetics.find(item => item && item.text);
+            const found = data[0].phonetics.find((item) => item && item.text);
             phonetic = found ? found.text : "";
           }
         }
 
         phonetic = phonetic.replace(/^\/|\/$/g, "");
-
         pronunciationEl.textContent = phonetic;
         localStorage.setItem(key, phonetic);
-      } catch (e) {
+      } catch (error) {
         pronunciationEl.textContent = "";
         localStorage.setItem(key, "");
       }
     }
 
-    function nextWord() {
-      if (!words.length) return;
-      index = (index + 1) % words.length;
-      showWord();
+    // =========================
+    // Morpheme
+    // =========================
+    function getCoreImage(word) {
+      const cacheKey = `core_v2_${String(word).toLowerCase().trim()}`;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached !== null) return cached;
+
+      const result = buildCoreImage(word);
+      localStorage.setItem(cacheKey, result);
+      return result;
     }
 
-    function createList() {
-      const list = document.getElementById("list");
-      list.innerHTML = "";
+    function buildCoreImage(word) {
+      const normalized = String(word).toLowerCase().trim();
+      const prefixes = Object.keys(prefixMap).sort((a, b) => b.length - a.length);
+      const suffixes = Object.keys(suffixMap).sort((a, b) => b.length - a.length);
 
-      words.forEach((w, i) => {
-        const div = document.createElement("div");
-        div.className = "word-item";
-        div.textContent = w.word;
-        div.onclick = () => {
-          index = i;
-          showWord();
-        };
-        list.appendChild(div);
-      });
-    }
+      const foundPrefix = prefixes.find((prefix) => normalized.startsWith(prefix));
+      const foundSuffix = suffixes.find((suffix) => normalized.endsWith(suffix));
 
-    function highlightActiveWord() {
-      const items = document.querySelectorAll(".word-item");
-      items.forEach((item, i) => {
-        item.classList.toggle("active", i === index);
-      });
-    }
+      const lines = [];
 
-    function scrollActiveWordIntoView() {
-      const items = document.querySelectorAll(".word-item");
-      const active = items[index];
-      if (active) {
-        active.scrollIntoView({
-          block: "center",
-          behavior: "smooth"
-        });
+      if (foundPrefix) {
+        lines.push(`接頭辞：${foundPrefix}（${prefixMap[foundPrefix]}）`);
       }
-    }
 
-    function updateCurrentVol() {
-      const volNumber = currentVol.replace("vol", "");
-      document.getElementById("current").textContent = "vol." + volNumber;
-    }
-
-    function updateVolButtons() {
-      const buttons = document.querySelectorAll(".vol-btn");
-      buttons.forEach(btn => btn.classList.remove("active-vol"));
-
-      const mapping = {
-        vol1: 0,
-        vol2: 1,
-        vol3: 2,
-        vol4: 3
-      };
-
-      const activeIndex = mapping[currentVol];
-      if (buttons[activeIndex]) {
-        buttons[activeIndex].classList.add("active-vol");
+      if (foundSuffix) {
+        lines.push(`接尾辞：${foundSuffix}（${suffixMap[foundSuffix]}）`);
       }
-    }
 
-    function applySidebarState() {
-      const sidebar = document.getElementById("sidebar");
-      if (!sidebar) return;
-
-      if (sidebarOpen) {
-        sidebar.classList.remove("hidden");
-      } else {
-        sidebar.classList.add("hidden");
+      if (foundPrefix || foundSuffix) {
+        lines.push('<span class="hint-note">※ 確定ではなく候補</span>');
+        return lines.join("<br>");
       }
+
+      return "";
     }
 
-    function toggleSidebar() {
-      sidebarOpen = !sidebarOpen;
-      saveSidebarState();
-      applySidebarState();
-    }
-
-    function applyPartsState() {
-      const panel = document.getElementById("partsPanel");
-      if (!panel) return;
-
-      if (partsOpen) {
-        panel.classList.remove("hidden");
-      } else {
-        panel.classList.add("hidden");
-      }
-    }
-
-    function togglePartsPanel() {
-      partsOpen = !partsOpen;
-      savePartsState();
-      applyPartsState();
-    }
-
-    loadSavedState();
-    loadSheet(currentVol);
-
-    let lastTouchEnd = 0;
-    document.addEventListener("touchend", function (event) {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, { passive: false });
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    document.addEventListener("touchstart", function (e) {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    document.addEventListener("touchend", function (e) {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, { passive: true });
-
+    // =========================
+    // Swipe
+    // =========================
     function handleSwipe() {
-      const diff = touchEndX - touchStartX;
+      const diffX = touchEndX - touchStartX;
+      const diffY = Math.abs(touchEndY - touchStartY);
+      const thresholdX = 50;
+      const thresholdY = 50;
 
-      // スワイプ判定のしきい値（小さすぎると誤爆します）
-      const threshold = 50;
+      if (Math.abs(diffX) < thresholdX) return;
+      if (diffY > thresholdY) return;
 
-      if (Math.abs(diff) < threshold) return;
-
-      if (diff > 0) {
-        // 👉 右スワイプ（戻る）
+      if (diffX > 0) {
         prevWord();
       } else {
-        // 👈 左スワイプ（進む）
         nextWord();
       }
     }
 
-    let touchStartY = 0;
-
-    document.addEventListener("touchstart", function (e) {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-
-    function handleSwipe() {
-      const diffX = touchEndX - touchStartX;
-      const diffY = Math.abs(touchEndY - touchStartY);
-
-      if (diffY > 50) return; // 縦スクロールなら無視
-
-      if (Math.abs(diffX) < 50) return;
-
-      if (diffX > 0) prevWord();
-      else nextWord();
-    }
-
-    function getFavoriteKey(word) {
-      return currentVol + "::" + word.toLowerCase().trim();
-    }
-
-    function isFavoriteWord(word) {
-      return !!favorites[getFavoriteKey(word)];
-    }
-
-    function toggleFavorite() {
-      if (!words.length) return;
-
-      const currentWord = words[index].word;
-      const key = getFavoriteKey(currentWord);
-
-      if (favorites[key]) {
-        delete favorites[key];
-      } else {
-        favorites[key] = true;
-      }
-
-      saveFavorites();
-      updateFavoriteButton();
-    }
-
-    function updateFavoriteButton() {
-      const btn = document.getElementById("favoriteBtn");
-      if (!btn || !words.length) return;
-
-      const currentWord = words[index].word;
-      const active = isFavoriteWord(currentWord);
-
-      btn.textContent = active ? "★ 苦手中" : "☆ 苦手";
-      btn.classList.toggle("active", active);
-    }
+    init();
   </script>
 </body>
 </html>
