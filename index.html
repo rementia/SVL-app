@@ -88,7 +88,6 @@
 
     .toggle-btn,
     .auto-speak-btn,
-    .parts-toggle-btn,
     .favorite-toggle-btn {
       position: absolute;
       z-index: 35;
@@ -102,7 +101,6 @@
 
     .toggle-btn:hover,
     .auto-speak-btn:hover,
-    .parts-toggle-btn:hover,
     .favorite-toggle-btn:hover {
       background: #f2f2f2;
     }
@@ -117,17 +115,12 @@
       left: 96px;
     }
 
-    .parts-toggle-btn {
-      top: 14px;
-      right: 12px;
-    }
-
     .favorite-toggle-btn {
       top: 14px;
-      right: 92px;
+      right: 12px;
       min-width: 68px;
       font-weight: 700;
-      background: #fff;
+      color: #888;
     }
 
     .auto-speak-btn.active {
@@ -240,39 +233,6 @@
       padding: 12px 24px;
     }
 
-    .parts-panel {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%) translateX(0);
-      width: 280px;
-      min-width: 280px;
-      max-width: 280px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 18px 0 18px 12px;
-      border-left: 1px solid #e3e3e3;
-      background: #fff;
-      opacity: 1;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
-
-    .parts-panel.hidden {
-      transform: translateY(-50%) translateX(110%);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .parts-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #666;
-      letter-spacing: 0.06em;
-      margin-bottom: 14px;
-      text-align: left;
-    }
-
     .current-vol {
       font-size: 14px;
       color: #666;
@@ -303,23 +263,6 @@
       text-align: center;
       word-break: break-word;
       max-width: 180px;
-    }
-
-    #image {
-      font-size: clamp(13px, 1.4vw, 17px);
-      color: #666;
-      line-height: 1.8;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      text-align: left;
-      min-height: 5.5em;
-    }
-
-    .hint-note {
-      display: block;
-      margin-top: 10px;
-      font-size: 0.72em;
-      color: #888;
     }
 
     .button-row {
@@ -386,7 +329,6 @@
 
       .toggle-btn,
       .auto-speak-btn,
-      .parts-toggle-btn,
       .favorite-toggle-btn {
         top: 10px;
         font-size: 13px;
@@ -401,12 +343,8 @@
         left: 86px;
       }
 
-      .parts-toggle-btn {
-        right: 10px;
-      }
-
       .favorite-toggle-btn {
-        right: 82px;
+        right: 10px;
       }
 
       .sidebar {
@@ -435,32 +373,6 @@
       .main-btn {
         padding: 14px 22px;
       }
-
-      .parts-panel {
-        width: 220px;
-        min-width: 220px;
-        max-width: 220px;
-        padding: 12px 0 12px 8px;
-      }
-
-      #image {
-        font-size: clamp(12px, 2vw, 15px);
-      }
-    }
-
-    @media (max-width: 768px) and (orientation: landscape) {
-      .parts-panel {
-        width: 200px;
-        min-width: 200px;
-        max-width: 200px;
-        padding: 12px 0 12px 8px;
-        align-items: stretch;
-      }
-
-      #image {
-        width: 100%;
-        max-width: 100%;
-      }
     }
 
     @media (max-width: 520px) {
@@ -483,21 +395,6 @@
       .nav-hint {
         font-size: clamp(14px, 3.4vw, 18px);
       }
-
-      .parts-panel {
-        width: 180px;
-        min-width: 180px;
-        max-width: 180px;
-        padding: 10px 0 10px 6px;
-      }
-
-      .parts-title {
-        font-size: 12px;
-      }
-
-      #image {
-        font-size: clamp(11px, 2.8vw, 13px);
-      }
     }
 
     @media (prefers-color-scheme: dark) {
@@ -507,8 +404,7 @@
         color: #eee;
       }
 
-      .app,
-      .parts-panel {
+      .app {
         background: #111;
       }
 
@@ -530,7 +426,6 @@
       .favorite-list-btn,
       .toggle-btn,
       .auto-speak-btn,
-      .parts-toggle-btn,
       .favorite-toggle-btn {
         background: #1f1f1f;
         color: #eee;
@@ -541,7 +436,6 @@
       .favorite-list-btn:hover,
       .toggle-btn:hover,
       .auto-speak-btn:hover,
-      .parts-toggle-btn:hover,
       .favorite-toggle-btn:hover {
         background: #2a2a2a;
       }
@@ -554,20 +448,13 @@
       }
 
       .favorite-toggle-btn.active {
-        background: #fff;
-        color: #2f7df6;
-        border-color: #bbb;
-      }
-
-      .parts-panel {
-        border-left: 1px solid #333;
+        background: #1f1f1f;
+        color: #6aa8ff;
+        border-color: #444;
       }
 
       .current-vol,
-      .parts-title,
-      #image,
-      #pronunciation,
-      .hint-note {
+      #pronunciation {
         color: #bbb;
       }
 
@@ -589,14 +476,13 @@
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
-    <button class="parts-toggle-btn" onclick="togglePartsPanel()">形態素</button>
 
     <div class="top-bar">
       <button class="vol-btn" data-vol="vol1" onclick="loadSheet('vol1')">vol.1</button>
       <button class="vol-btn" data-vol="vol2" onclick="loadSheet('vol2')">vol.2</button>
       <button class="vol-btn" data-vol="vol3" onclick="loadSheet('vol3')">vol.3</button>
       <button class="vol-btn" data-vol="vol4" onclick="loadSheet('vol4')">vol.4</button>
-      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">★</button>
+      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">お気に入り</button>
     </div>
 
     <div class="sidebar" id="sidebar">
@@ -627,11 +513,6 @@
             </div>
           </div>
         </div>
-
-        <aside class="parts-panel" id="partsPanel">
-          <div class="parts-title">morpheme</div>
-          <div id="image"></div>
-        </aside>
       </div>
     </main>
   </div>
@@ -656,50 +537,8 @@
       vol: "tango_current_vol",
       indexByVol: "tango_index_by_vol",
       sidebarOpen: "tango_sidebar_open",
-      partsOpen: "tango_parts_open",
       autoSpeak: "tango_auto_speak",
       favorites: "tango_favorites"
-    };
-
-    // =========================
-    // Morpheme dictionaries
-    // =========================
-    const prefixMap = {
-      sub: "下に・下から",
-      pro: "前へ",
-      ob: "向かって",
-      trans: "越えて・向こうへ",
-      re: "再び・元に戻って",
-      de: "下へ・離れて",
-      con: "共に・一緒に",
-      com: "共に・一緒に",
-      in: "中へ・中に",
-      im: "中へ・中に",
-      ex: "外へ",
-      pre: "前もって",
-      inter: "間に",
-      dis: "離れて・打消し",
-      un: "打消し",
-      ad: "〜へ"
-    };
-
-    const suffixMap = {
-      ject: "投げる",
-      mit: "送る・置く",
-      port: "運ぶ",
-      spect: "見る",
-      struct: "積み上げる・組み立てる",
-      scribe: "書く",
-      script: "書かれたもの",
-      dict: "言う",
-      form: "形",
-      move: "動く",
-      pose: "置く",
-      press: "押す",
-      tract: "引く",
-      vent: "来る",
-      ceive: "受け取る",
-      tend: "伸ばす・向ける"
     };
 
     // =========================
@@ -717,7 +556,6 @@
     let currentVol = "vol1";
     let currentMode = "vol"; // 'vol' | 'favorites'
     let sidebarOpen = true;
-    let partsOpen = true;
     let autoSpeak = false;
     let favorites = {};
 
@@ -747,7 +585,6 @@
     function loadSavedState() {
       const savedVol = localStorage.getItem(STORAGE_KEYS.vol);
       const savedSidebarOpen = localStorage.getItem(STORAGE_KEYS.sidebarOpen);
-      const savedPartsOpen = localStorage.getItem(STORAGE_KEYS.partsOpen);
       const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
       const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedFavorites = localStorage.getItem(STORAGE_KEYS.favorites);
@@ -758,10 +595,6 @@
 
       if (savedSidebarOpen !== null) {
         sidebarOpen = savedSidebarOpen === "true";
-      }
-
-      if (savedPartsOpen !== null) {
-        partsOpen = savedPartsOpen === "true";
       }
 
       if (savedAutoSpeak !== null) {
@@ -787,7 +620,6 @@
 
       updateAutoSpeakButton();
       applySidebarState();
-      applyPartsState();
     }
 
     function bindTouchEvents() {
@@ -838,10 +670,6 @@
 
     function saveSidebarState() {
       localStorage.setItem(STORAGE_KEYS.sidebarOpen, String(sidebarOpen));
-    }
-
-    function savePartsState() {
-      localStorage.setItem(STORAGE_KEYS.partsOpen, String(partsOpen));
     }
 
     function saveAutoSpeakState() {
@@ -923,7 +751,7 @@
       const favoriteEntries = buildFavoriteEntries();
 
       if (favoriteEntries.length === 0) {
-        alert("★未登録");
+        alert("お気に入りがまだありません。");
         return;
       }
 
@@ -963,7 +791,8 @@
     function parseCsvToWords(text, volName) {
       return text
         .trim()
-        .split("\n")
+        .split("
+")
         .map((line) => line.trim())
         .filter((line) => line !== "")
         .map((line) => {
@@ -986,7 +815,6 @@
       updateCurrentLabel();
       updateTopButtons();
       applySidebarState();
-      applyPartsState();
     }
 
     function showWord() {
@@ -994,7 +822,6 @@
       if (!current) {
         document.getElementById("word").textContent = "単語がありません";
         document.getElementById("meaning").textContent = "";
-        document.getElementById("image").innerHTML = "";
         document.getElementById("pronunciation").textContent = "";
         document.getElementById("prevHint").textContent = "";
         document.getElementById("nextHint").textContent = "";
@@ -1004,7 +831,6 @@
 
       document.getElementById("word").textContent = current.word;
       document.getElementById("meaning").textContent = current.meaning;
-      document.getElementById("image").innerHTML = getCoreImage(current.word);
 
       if (currentMode === "vol") {
         indexByVol[currentVol] = index;
@@ -1062,7 +888,7 @@
     function updateCurrentLabel() {
       const currentEl = document.getElementById("current");
       if (currentMode === "favorites") {
-        currentEl.textContent = "★";
+        currentEl.textContent = "お気に入り";
         return;
       }
 
@@ -1091,7 +917,7 @@
       const active = isFavorite(current.sourceVol, current.word);
       button.textContent = active ? "★" : "☆";
       button.classList.toggle("active", active);
-      button.title = active ? "★解除" : "★登録";
+      button.title = active ? "お気に入り解除" : "お気に入り登録";
     }
 
     function updateNavHints() {
@@ -1147,18 +973,6 @@
       const sidebar = document.getElementById("sidebar");
       if (!sidebar) return;
       sidebar.classList.toggle("hidden", !sidebarOpen);
-    }
-
-    function togglePartsPanel() {
-      partsOpen = !partsOpen;
-      savePartsState();
-      applyPartsState();
-    }
-
-    function applyPartsState() {
-      const panel = document.getElementById("partsPanel");
-      if (!panel) return;
-      panel.classList.toggle("hidden", !partsOpen);
     }
 
     function toggleAutoSpeak() {
@@ -1240,45 +1054,6 @@
         pronunciationEl.textContent = "";
         localStorage.setItem(key, "");
       }
-    }
-
-    // =========================
-    // Morpheme
-    // =========================
-    function getCoreImage(word) {
-      const cacheKey = `core_v2_${String(word).toLowerCase().trim()}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached !== null) return cached;
-
-      const result = buildCoreImage(word);
-      localStorage.setItem(cacheKey, result);
-      return result;
-    }
-
-    function buildCoreImage(word) {
-      const normalized = String(word).toLowerCase().trim();
-      const prefixes = Object.keys(prefixMap).sort((a, b) => b.length - a.length);
-      const suffixes = Object.keys(suffixMap).sort((a, b) => b.length - a.length);
-
-      const foundPrefix = prefixes.find((prefix) => normalized.startsWith(prefix));
-      const foundSuffix = suffixes.find((suffix) => normalized.endsWith(suffix));
-
-      const lines = [];
-
-      if (foundPrefix) {
-        lines.push(`接頭辞：${foundPrefix}（${prefixMap[foundPrefix]}）`);
-      }
-
-      if (foundSuffix) {
-        lines.push(`接尾辞：${foundSuffix}（${suffixMap[foundSuffix]}）`);
-      }
-
-      if (foundPrefix || foundSuffix) {
-        lines.push('<span class="hint-note">※ 確定ではなく候補</span>');
-        return lines.join("<br>");
-      }
-
-      return "";
     }
 
     // =========================
