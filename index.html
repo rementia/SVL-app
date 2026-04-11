@@ -791,14 +791,17 @@
     function parseCsvToWords(text, volName) {
       return text
         .trim()
-        .split("")
-        .map((line) => line.trim())
+        .split("\n")
+        .map((line) => line.replace(/\r/g, "").trim())
         .filter((line) => line !== "")
         .map((line) => {
-          const [word, meaning] = line.split(",");
+          const cols = line.split(",");
+          const word = (cols.shift() || "").trim();
+          const meaning = cols.join(",").trim();
+
           return {
-            word: (word || "").trim(),
-            meaning: (meaning || "").trim(),
+            word,
+            meaning,
             sourceVol: volName
           };
         })
