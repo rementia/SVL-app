@@ -124,8 +124,8 @@
     }
 
     .auto-speak-btn.active {
-      background: #2f7df6;
-      color: #fff;
+      background: #fff;
+      color: #111;
       border-color: #2f7df6;
     }
 
@@ -468,6 +468,13 @@
         background: #eaeaea;
         color: #111;
       }
+      
+      .auto-speak-btn.active {
+        background: #1f1f1f;
+        color: #eee;
+        border-color: #6aa8ff;
+      }
+
     }
   </style>
 </head>
@@ -941,11 +948,12 @@
     }
 
     function updateAutoSpeakButton() {
-      const button = document.getElementById("autoSpeakBtn");
-      if (!button) return;
+      const btn = document.getElementById("autoSpeakBtn");
+      if (!btn) return;
 
-      button.textContent = autoSpeak ? "自動発音：ON" : "自動発音：OFF";
-      button.classList.toggle("active", autoSpeak);
+      btn.textContent = "自動発音"; // 常に固定
+
+      btn.classList.toggle("active", autoSpeak);
     }
 
     function highlightActiveWord() {
