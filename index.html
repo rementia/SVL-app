@@ -482,7 +482,7 @@
       <button class="vol-btn" data-vol="vol2" onclick="loadSheet('vol2')">vol.2</button>
       <button class="vol-btn" data-vol="vol3" onclick="loadSheet('vol3')">vol.3</button>
       <button class="vol-btn" data-vol="vol4" onclick="loadSheet('vol4')">vol.4</button>
-      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">お気に入り</button>
+      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">★</button>
     </div>
 
     <div class="sidebar" id="sidebar">
@@ -751,7 +751,7 @@
       const favoriteEntries = buildFavoriteEntries();
 
       if (favoriteEntries.length === 0) {
-        alert("お気に入りがまだありません。");
+        alert("★未登録");
         return;
       }
 
@@ -801,7 +801,7 @@
 
           let meaning = cols.join(",").trim();
 
-      // 🔥 ここ追加（末尾のカンマ削除）
+      // 末尾のカンマ削除
           meaning = meaning.replace(/,+$/, "");
 
           return {
@@ -895,7 +895,7 @@
     function updateCurrentLabel() {
       const currentEl = document.getElementById("current");
       if (currentMode === "favorites") {
-        currentEl.textContent = "お気に入り";
+        currentEl.textContent = "★";
         return;
       }
 
@@ -924,7 +924,7 @@
       const active = isFavorite(current.sourceVol, current.word);
       button.textContent = active ? "★" : "☆";
       button.classList.toggle("active", active);
-      button.title = active ? "お気に入り解除" : "お気に入り登録";
+      button.title = active ? "★解除" : "★登録";
     }
 
     function updateNavHints() {
