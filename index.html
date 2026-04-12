@@ -317,7 +317,9 @@
     }
 
     .challenge-btn.active {
-      border-color: #2f7df6;
+      background: #2f7df6;
+      color: #fff;
+      border-color: #bbb;
     }
 
     @media (max-width: 900px) {
@@ -483,6 +485,11 @@
       }
       
       .auto-speak-btn.active {
+        background: #2f7df6;
+        color: #eee;
+        border-color: #444;
+      }
+      .challenge-btn.active {
         background: #2f7df6;
         color: #eee;
         border-color: #444;
@@ -860,19 +867,20 @@
 
     function showWord() {
       clearMeaningRevealTimer();
+
       const current = getCurrentWord();
       if (!current) {
         document.getElementById("word").textContent = "単語がありません";
+        document.getElementById("meaning").textContent = "";
         document.getElementById("pronunciation").textContent = "";
         document.getElementById("prevHint").textContent = "";
         document.getElementById("nextHint").textContent = "";
         updateFavoriteToggleButton();
-        updateMeaningDisplay(current.meaning);
         return;
       }
 
       document.getElementById("word").textContent = current.word;
-      document.getElementById("meaning").textContent = current.meaning;
+      updateMeaningDisplay(current.meaning);
 
       if (currentMode === "vol") {
         indexByVol[currentVol] = index;
@@ -994,15 +1002,17 @@
 
     function updateMeaningDisplay(meaning) {
       const el = document.getElementById("meaning");
+      if (!el) return;
+
+      clearMeaningRevealTimer();
 
       if (!challengeMode) {
         el.textContent = meaning;
         return;
       }
 
-      el.textContent = "";
+      el.textContent = "・・・";
 
-      clearTimeout(meaningRevealTimer);
       meaningRevealTimer = setTimeout(() => {
         el.textContent = meaning;
       }, 3000);
