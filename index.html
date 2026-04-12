@@ -307,6 +307,19 @@
       opacity: 0.92;
     }
 
+    .challenge-btn {
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #bbb;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .challenge-btn.active {
+      border-color: #2f7df6;
+    }
+
     @media (max-width: 900px) {
       .sidebar {
         width: 110px;
@@ -483,6 +496,7 @@
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
+    <button class="challenge-btn" id="challengeBtn" onclick="toggleChallengeMode()">想起学習</button>
 
     <div class="top-bar">
       <button class="vol-btn" data-vol="vol1" onclick="loadSheet('vol1')">vol.1</button>
@@ -545,7 +559,8 @@
       indexByVol: "tango_index_by_vol",
       sidebarOpen: "tango_sidebar_open",
       autoSpeak: "tango_auto_speak",
-      favorites: "tango_favorites"
+      favorites: "tango_favorites",
+      challengeMode: "tango_challenge_mode",
     };
 
     // =========================
@@ -565,6 +580,8 @@
     let sidebarOpen = true;
     let autoSpeak = false;
     let favorites = {};
+    let challengeMode = false;
+    let meaningRevealTimer = null;
 
     let indexByVol = {
       vol1: 0,
@@ -595,6 +612,7 @@
       const savedAutoSpeak = localStorage.getItem(STORAGE_KEYS.autoSpeak);
       const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedFavorites = localStorage.getItem(STORAGE_KEYS.favorites);
+      const savedChallengeMode = localStorage.getItem(STORAGE_KEYS.challengeMode);
 
       if (savedVol && sheetUrls[savedVol]) {
         currentVol = savedVol;
@@ -625,8 +643,13 @@
         }
       }
 
+      if (savedChallengeMode !== null) {
+        challengeMode = savedChallengeMode === "true";
+      }
+
       updateAutoSpeakButton();
       applySidebarState();
+      updateChallengeButton();
     }
 
     function bindTouchEvents() {
@@ -685,6 +708,10 @@
 
     function saveFavorites() {
       localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
+    }
+
+    function saveChallengeModeState() {
+      localStorage.setItem(STORAGE_KEYS.challengeMode, String(challengeMode));
     }
 
     // =========================
@@ -832,14 +859,15 @@
     }
 
     function showWord() {
+      clearMeaningRevealTimer();
       const current = getCurrentWord();
       if (!current) {
         document.getElementById("word").textContent = "単語がありません";
-        document.getElementById("meaning").textContent = "";
         document.getElementById("pronunciation").textContent = "";
         document.getElementById("prevHint").textContent = "";
         document.getElementById("nextHint").textContent = "";
         updateFavoriteToggleButton();
+        updateMeaningDisplay(current.meaning);
         return;
       }
 
@@ -956,6 +984,37 @@
       btn.classList.toggle("active", autoSpeak);
     }
 
+    function updateChallengeButton() {
+      const btn = document.getElementById("challengeBtn");
+      if (!btn) return;
+
+      btn.textContent = "想起学習";
+      btn.classList.toggle("active", challengeMode);
+    }
+
+    function updateMeaningDisplay(meaning) {
+      const el = document.getElementById("meaning");
+
+      if (!challengeMode) {
+        el.textContent = meaning;
+        return;
+      }
+
+      el.textContent = "";
+
+      clearTimeout(meaningRevealTimer);
+      meaningRevealTimer = setTimeout(() => {
+        el.textContent = meaning;
+      }, 3000);
+    }
+
+    function clearMeaningRevealTimer() {
+      if (meaningRevealTimer) {
+        clearTimeout(meaningRevealTimer);
+        meaningRevealTimer = null;
+      }
+    }
+
     function highlightActiveWord() {
       const items = document.querySelectorAll(".word-item");
       items.forEach((item, itemIndex) => {
@@ -994,6 +1053,13 @@
       autoSpeak = !autoSpeak;
       saveAutoSpeakState();
       updateAutoSpeakButton();
+    }
+
+    function toggleChallengeMode() {
+      challengeMode = !challengeMode;
+      saveChallengeModeState();
+      updateChallengeButton();
+      showWord();
     }
 
     // =========================
