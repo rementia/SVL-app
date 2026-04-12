@@ -126,13 +126,13 @@
     .auto-speak-btn.active {
       background: #2f7df6;
       color: #fff;
-      border-color: #bbb;
+      border-color: #444;
     }
 
     .favorite-toggle-btn.active {
       background: #fff;
       color: #2f7df6;
-      border-color: #bbb;
+      border-color: #444;
     }
 
     .speak-btn {
@@ -308,6 +308,10 @@
     }
 
     .challenge-btn {
+      position: absolute;
+      top: 14px;
+      right: 88px;
+      z-index: 35;
       font-size: 14px;
       padding: 10px 14px;
       border: 1px solid #bbb;
@@ -319,7 +323,7 @@
     .challenge-btn.active {
       background: #2f7df6;
       color: #fff;
-      border-color: #bbb;
+      border-color: #444;
     }
 
     @media (max-width: 900px) {
@@ -387,6 +391,13 @@
 
       .main-btn {
         padding: 14px 22px;
+      }
+
+      .challenge-btn {
+        top: 10px;
+        right: 72px;
+        font-size: 13px;
+        padding: 8px 12px;
       }
     }
 
