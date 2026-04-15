@@ -601,7 +601,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -616,6 +616,7 @@
 
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth(firebaseApp);
+    await setPersistence(auth, browserLocalPersistence);
     const db = getFirestore(firebaseApp);
     const provider = new GoogleAuthProvider();
 
