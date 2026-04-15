@@ -994,7 +994,9 @@
       }
     }
 
-    function loadFavoritesMode() {
+    async function loadFavoritesMode() {
+      await ensureAllVolumesLoaded();
+
       const favoriteEntries = buildFavoriteEntries();
 
       if (favoriteEntries.length === 0) {
@@ -1035,6 +1037,16 @@
         console.error(error);
         document.body.classList.remove("loading");
         alert("読み込みに失敗しました。スプレッドシートの共有設定をご確認ください。");
+      }
+    }
+
+    async function ensureAllVolumesLoaded() {
+      for (const vol of volOrder) {
+        if (!allWordsByVol[vol] || allWordsByVol[vol].length === 0) {
+          const response = await fetch(sheetUrls[vol]);
+          const text = await response.text();
+          allWordsByVol[vol] = parseCsvToWords(text, vol);
+        }
       }
     }
 
