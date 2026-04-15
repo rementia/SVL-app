@@ -576,7 +576,6 @@
   <div class="app">
     <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
-    <div class="login-user" id="loginUser"></div>
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
@@ -593,7 +592,6 @@
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
     </div>
-    <div id="debugLog" style="position:fixed;left:8px;bottom:40px;z-index:9999;background:#fff;border:1px solid #ccc;padding:6px 8px;font-size:12px;max-width:80vw;"></div>
 
     <main class="main">
       <div class="main-layout">
@@ -743,7 +741,7 @@
       const logoutBtn = document.getElementById("logoutBtn");
       const loginUser = document.getElementById("loginUser");
 
-      if (!loginBtn || !logoutBtn || !loginUser) return;
+      if (!loginBtn || !logoutBtn) return;
 
       if (currentUser) {
         loginBtn.style.display = "none";
