@@ -572,7 +572,7 @@
     }
   </style>
 </head>
-<body class>
+<body>
   <div class="app">
     <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
@@ -762,27 +762,6 @@
         const ref = doc(db, "users", currentUser.uid);
         const snap = await getDoc(ref);
 
-        if (!snap.exists()) {
-          return;
-        }
-
-        const data = snap.data();
-        if (data && data.favorites && typeof data.favorites === "object") {
-          favorites = data.favorites;
-          saveFavoritesToLocalOnly();
-        }
-      } catch (error) {
-        console.error("クラウド読み込み失敗:", error);
-      }
-    }
-
-    async function loadFavoritesFromCloud() {
-      if (!currentUser) return;
-
-      try {
-        const ref = doc(db, "users", currentUser.uid);
-        const snap = await getDoc(ref);
-
         // クラウドにまだデータがない → ローカルの favorites を初回アップロード
         if (!snap.exists()) {
           if (Object.keys(favorites).length > 0) {
@@ -811,6 +790,17 @@
         }
       } catch (error) {
         console.error("クラウド読み込み失敗:", error);
+      }
+    }
+
+    async function saveFavoritesToCloud() {
+      if (!currentUser || !syncReady) return;
+
+      try {
+        const ref = doc(db, "users", currentUser.uid);
+        await setDoc(ref, { favorites }, { merge: true });
+      } catch (error) {
+        console.error("クラウド保存失敗:", error);
       }
     }
 
