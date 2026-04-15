@@ -763,7 +763,7 @@
         const ref = doc(db, "users", currentUser.uid);
         const snap = await getDoc(ref);
 
-        // クラウドにまだデータがない → ローカルの favorites を初回アップロード
+        // クラウド未作成なら、ローカルをそのまま初回アップロード
         if (!snap.exists()) {
           if (Object.keys(favorites).length > 0) {
             await setDoc(ref, { favorites }, { merge: true });
@@ -772,28 +772,25 @@
         }
 
         const data = snap.data();
-        const cloudFavorites = data?.favorites;
+        const cloudFavorites = (data && data.favorites && typeof data.favorites === "object")
+          ? data.favorites
+          : {};
 
-        // クラウド側にお気に入りがあるときだけ上書き
-        if (
-          cloudFavorites &&
-          typeof cloudFavorites === "object" &&
-          Object.keys(cloudFavorites).length > 0
-        ) {
-          favorites = cloudFavorites;
-          saveFavoritesToLocalOnly();
-          return;
-        }
+        // ローカルを優先しつつ、クラウドも取り込む
+        favorites = {
+          ...cloudFavorites,
+          ...favorites
+        };
 
-        // クラウド側が空なら、ローカルに残っているお気に入りを優先してアップロード
-        if (Object.keys(favorites).length > 0) {
-          await setDoc(ref, { favorites }, { merge: true });
-        }
+        saveFavoritesToLocalOnly();
+
+        // 統合後の状態をクラウドにも反映
+        await setDoc(ref, { favorites }, { merge: true });
+
       } catch (error) {
         console.error("クラウド読み込み失敗:", error);
       }
     }
-
     async function saveFavoritesToCloud() {
       if (!currentUser || !syncReady) return;
 
@@ -846,10 +843,13 @@
 
       if (savedFavorites) {
         try {
-          favorites = JSON.parse(savedFavorites);
+          const parsedFavorites = JSON.parse(savedFavorites);
+          favorites = (parsedFavorites && typeof parsedFavorites === "object") ? parsedFavorites : {};
         } catch (error) {
           favorites = {};
         }
+      } else {
+        favorites = {};
       }
 
       if (savedChallengeMode !== null) {
