@@ -1012,6 +1012,7 @@
     // Data loading
     // =========================
     async function loadSheet(volName) {
+      console.log("loadSheet start:", volName); 
       try {
         currentMode = "vol";
         currentVol = volName;
@@ -1019,11 +1020,13 @@
 
         if (!allWordsByVol[volName] || allWordsByVol[volName].length === 0) {
           const response = await fetch(sheetUrls[volName]);
+          console.log("fetch response:", response.status);
           const text = await response.text();
           allWordsByVol[volName] = parseCsvToWords(text, volName);
         }
 
         words = [...allWordsByVol[volName]];
+        console.log("words loaded:", words.length, words[0]);
         index = Math.min(indexByVol[volName] || 0, Math.max(words.length - 1, 0));
         render();
 
