@@ -593,6 +593,7 @@
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
     </div>
+    <div id="debugLog" style="position:fixed;left:8px;bottom:40px;z-index:9999;background:#fff;border:1px solid #ccc;padding:6px 8px;font-size:12px;max-width:80vw;"></div>
 
     <main class="main">
       <div class="main-layout">
@@ -623,6 +624,12 @@
   </div>
 
   <script type="module">
+    function debug(message) {
+      console.log(message);
+      const el = document.getElementById("debugLog");
+      if (el) el.textContent = String(message);
+    }
+
     window.addEventListener("error", (e) => {
       alert("JSエラー: " + e.message);
       console.error("JSエラー:", e.error || e.message);
