@@ -790,7 +790,7 @@
       }
     }
     async function saveFavoritesToCloud() {
-      if (!currentUser || !syncReady) return;
+      if (!currentUser) return;
 
       try {
         const ref = doc(db, "users", currentUser.uid);
@@ -917,9 +917,12 @@
       localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
     }
 
-    function saveFavorites() {
+    async function saveFavorites() {
       saveFavoritesToLocalOnly();
-      saveFavoritesToCloud();
+
+      if (currentUser) {
+        await saveFavoritesToCloud();
+      }
     }
 
     function saveChallengeModeState() {
@@ -955,7 +958,7 @@
       return entries;
     }
 
-    function toggleFavoriteCurrentWord() {
+    async function toggleFavoriteCurrentWord() {
       const current = getCurrentWord();
       if (!current || !current.sourceVol) return;
 
@@ -967,7 +970,7 @@
         favorites[key] = true;
       }
 
-      saveFavorites();
+      await saveFavorites();
       updateFavoriteToggleButton();
       createList();
 
