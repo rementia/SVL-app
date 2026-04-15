@@ -340,7 +340,7 @@
     }
 
     #logoutBtn {
-      right: 120px;
+      right: 12px;
     }
 
     .login-user {
@@ -919,7 +919,10 @@
 
     function saveFavorites() {
       saveFavoritesToLocalOnly();
-      saveFavoritesToCloud();
+
+      if (currentUser) {
+        saveFavoritesToCloud();
+      }
     }
 
     function saveChallengeModeState() {
