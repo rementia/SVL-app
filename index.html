@@ -572,7 +572,7 @@
     }
   </style>
 </head>
-<body class="loading">
+<body class>
   <div class="app">
     <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
@@ -1394,7 +1394,13 @@
     window.nextWord = nextWord;
     window.speakWord = speakWord;
 
-    init();
+    try {
+      init();
+    } catch (error) {
+      console.error("初期化失敗:", error);
+      document.body.classList.remove("loading");
+      alert("初期化失敗: " + error.message);
+    }
   </script>
 </body>
 </html>
