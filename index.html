@@ -786,7 +786,7 @@
 
       try {
         const ref = doc(db, "users", currentUser.uid);
-        await setDoc(ref, { favorites }, { merge: true });
+        await setDoc(ref, { favorites });
       } catch (error) {
         console.error("クラウド保存失敗:", error);
       }
