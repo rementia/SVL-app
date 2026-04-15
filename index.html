@@ -781,6 +781,17 @@
       }
     }
 
+    async function saveFavoritesToCloud() {
+      if (!currentUser) return;
+
+      try {
+        const ref = doc(db, "users", currentUser.uid);
+        await setDoc(ref, { favorites }, { merge: true });
+      } catch (error) {
+        console.error("クラウド保存失敗:", error);
+      }
+    }
+
     // =========================
     // Initialization
     // =========================
