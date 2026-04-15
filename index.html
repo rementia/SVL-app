@@ -1050,6 +1050,16 @@
       }
     }
 
+    async function ensureAllVolumesLoaded() {
+      for (const vol of volOrder) {
+        if (!allWordsByVol[vol] || allWordsByVol[vol].length === 0) {
+          const response = await fetch(sheetUrls[vol]);
+          const text = await response.text();
+          allWordsByVol[vol] = parseCsvToWords(text, vol);
+        }
+      }
+    }
+
     function parseCsvToWords(text, volName) {
       return text
         .trim()
