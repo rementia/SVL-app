@@ -343,15 +343,6 @@
       right: 120px;
     }
 
-    .login-user {
-      position: absolute;
-      bottom: 14px;
-      left: 12px;
-      z-index: 40;
-      font-size: 12px;
-      color: #666;
-    }
-
     @media (max-width: 900px) {
       .sidebar {
         width: 110px;
@@ -442,15 +433,6 @@
         right: 88px;
       }
 
-      .login-user {
-        bottom: 10px;
-        left: 8px;
-        font-size: 11px;
-        max-width: 110px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
     }
 
     @media (max-width: 520px) {
@@ -565,10 +547,6 @@
         border-color: #444;
       }
 
-      .login-user {
-        color: #bbb;
-      }
-
     }
   </style>
 </head>
@@ -576,7 +554,6 @@
   <div class="app">
     <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
-    <div class="login-user" id="loginUser"></div>
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
@@ -593,7 +570,6 @@
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
     </div>
-    <div id="debugLog" style="position:fixed;left:8px;bottom:40px;z-index:9999;background:#fff;border:1px solid #ccc;padding:6px 8px;font-size:12px;max-width:80vw;"></div>
 
     <main class="main">
       <div class="main-layout">
@@ -748,11 +724,9 @@
       if (currentUser) {
         loginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
-        loginUser.textContent = currentUser.displayName || currentUser.email || "ログイン中";
       } else {
         loginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
-        loginUser.textContent = "";
       }
     }
 
