@@ -593,6 +593,7 @@
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
     </div>
+    <div id="debugLog" style="position:fixed;left:8px;bottom:40px;z-index:9999;background:#fff;border:1px solid #ccc;padding:6px 8px;font-size:12px;max-width:80vw;"></div>
 
     <main class="main">
       <div class="main-layout">
@@ -623,12 +624,10 @@
   </div>
 
   <script type="module">
-      console.error("Promiseエラー:", e.reason);
-    });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
+    
     const firebaseConfig = {
       apiKey: "AIzaSyCgVh9fmwib7ox-I1Q9c5IU-B4909XkhkU",
       authDomain: "svl-app-65204.firebaseapp.com",
@@ -1016,6 +1015,7 @@
     // Data loading
     // =========================
     async function loadSheet(volName) {
+      console.log("loadSheet start:", volName); 
       try {
         currentMode = "vol";
         currentVol = volName;
@@ -1023,14 +1023,13 @@
 
         if (!allWordsByVol[volName] || allWordsByVol[volName].length === 0) {
           const response = await fetch(sheetUrls[volName]);
-          if (!response.ok) {
-            throw new Error(`CSV fetch failed: ${response.status}`);
-          }
+          console.log("fetch response:", response.status);
           const text = await response.text();
           allWordsByVol[volName] = parseCsvToWords(text, volName);
         }
 
         words = [...allWordsByVol[volName]];
+        console.log("words loaded:", words.length, words[0]);
         index = Math.min(indexByVol[volName] || 0, Math.max(words.length - 1, 0));
         render();
 
@@ -1046,16 +1045,21 @@
       for (const vol of volOrder) {
         if (!allWordsByVol[vol] || allWordsByVol[vol].length === 0) {
           const response = await fetch(sheetUrls[vol]);
-          if (!response.ok) {
-            throw new Error(`CSV fetch failed: ${response.status}`);
-          }
           const text = await response.text();
           allWordsByVol[vol] = parseCsvToWords(text, vol);
         }
       }
     }
 
-    
+    async function ensureAllVolumesLoaded() {
+      for (const vol of volOrder) {
+        if (!allWordsByVol[vol] || allWordsByVol[vol].length === 0) {
+          const response = await fetch(sheetUrls[vol]);
+          const text = await response.text();
+          allWordsByVol[vol] = parseCsvToWords(text, vol);
+        }
+      }
+    }
 
     function parseCsvToWords(text, volName) {
       return text
@@ -1215,10 +1219,7 @@
       const btn = document.getElementById("autoSpeakBtn");
       if (!btn) return;
 
-      btn.textContent = "自動発音：OFF";
-      if (autoSpeak) {
-        btn.textContent = "自動発音";
-      }
+      btn.textContent = "自動発音"; // 常に固定
 
       btn.classList.toggle("active", autoSpeak);
     }
@@ -1409,7 +1410,13 @@
     window.nextWord = nextWord;
     window.speakWord = speakWord;
 
-    init();
+    try {
+      init();
+    } catch (error) {
+      console.error("初期化失敗:", error);
+      document.body.classList.remove("loading");
+      alert("初期化失敗: " + error.message);
+    }
   </script>
 </body>
 </html>
