@@ -786,7 +786,18 @@
 
       try {
         const ref = doc(db, "users", currentUser.uid);
+
+        // 毎回クラウド最新を取得
+        const snap = await getDoc(ref);
+        let cloudFavorites = {};
+
+        if (snap.exists()) {
+          cloudFavorites = snap.data().favorites || {};
+        }
+
+        // ローカルを正として上書き（←ここが重要）
         await setDoc(ref, { favorites });
+
       } catch (error) {
         console.error("クラウド保存失敗:", error);
       }
