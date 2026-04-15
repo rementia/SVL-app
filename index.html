@@ -752,17 +752,13 @@
     }
 
     async function loadFavoritesFromCloud() {
-      if (!currentUser) {
-        alert("読込前: 未ログイン");
-        return;
-      }
+      if (!currentUser) return;
 
       try {
         const ref = doc(db, "users", currentUser.uid);
         const snap = await getDoc(ref);
 
         if (!snap.exists()) {
-          alert("クラウドにデータなし: " + currentUser.uid);
           if (Object.keys(favorites).length > 0) {
             await setDoc(ref, { favorites }, { merge: true });
           }
@@ -770,12 +766,9 @@
         }
 
         const data = snap.data();
-        const cloudFavorites =
-          data && data.favorites && typeof data.favorites === "object"
-            ? data.favorites
-            : {};
-
-        alert("読込成功: " + currentUser.uid + " / 件数 " + Object.keys(cloudFavorites).length);
+        const cloudFavorites = (data && data.favorites && typeof data.favorites === "object")
+          ? data.favorites
+          : {};
 
         favorites = {
           ...cloudFavorites,
@@ -783,9 +776,8 @@
         };
 
         saveFavoritesToLocalOnly();
-        await setDoc(ref, { favorites }, { merge: true });
+
       } catch (error) {
-        alert("読込失敗: " + (error.code || "") + " " + (error.message || error));
         console.error("クラウド読み込み失敗:", error);
       }
     }
