@@ -758,6 +758,7 @@
         const ref = doc(db, "users", currentUser.uid);
         const snap = await getDoc(ref);
 
+        // クラウドにデータがない場合だけ、ログイン前ローカルを初回アップロード
         if (!snap.exists()) {
           if (Object.keys(favorites).length > 0) {
             await setDoc(ref, { favorites }, { merge: true });
@@ -766,34 +767,17 @@
         }
 
         const data = snap.data();
-        const cloudFavorites = (data && data.favorites && typeof data.favorites === "object")
-          ? data.favorites
-          : {};
+        const cloudFavorites =
+          data && data.favorites && typeof data.favorites === "object"
+            ? data.favorites
+            : {};
 
-        favorites = {
-          ...favorites,
-          ...cloudFavorites
-        };
-
+        // ログイン後はクラウドを正とする
+        favorites = cloudFavorites;
         saveFavoritesToLocalOnly();
 
       } catch (error) {
         console.error("クラウド読み込み失敗:", error);
-      }
-    }
-
-    async function saveFavoritesToCloud() {
-      if (!currentUser) {
-        alert("未ログイン");
-        return;
-      }
-
-      try {
-        const ref = doc(db, "users", currentUser.uid);
-        await setDoc(ref, { favorites }, { merge: true });
-      } catch (error) {
-        alert("保存失敗: " + (error.code || "") + " " + (error.message || error));
-        console.error("クラウド保存失敗:", error);
       }
     }
 
