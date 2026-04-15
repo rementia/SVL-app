@@ -739,18 +739,15 @@
     function updateAuthUI() {
       const loginBtn = document.getElementById("loginBtn");
       const logoutBtn = document.getElementById("logoutBtn");
-      const loginUser = document.getElementById("loginUser");
 
       if (!loginBtn || !logoutBtn) return;
 
       if (currentUser) {
         loginBtn.style.display = "none";
         logoutBtn.style.display = "inline-block";
-        loginUser.textContent = currentUser.displayName || currentUser.email || "ログイン中";
       } else {
         loginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
-        loginUser.textContent = "";
       }
     }
 
