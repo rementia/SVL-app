@@ -755,48 +755,61 @@
     }
 
     async function loadFavoritesFromCloud() {
-      if (!currentUser) return;
+      if (!currentUser) {
+        alert("未ログインなのでクラウド読込されません");
+        return;
+      }
 
       try {
         const ref = doc(db, "users", currentUser.uid);
         const snap = await getDoc(ref);
 
-        // クラウド未作成なら、ローカルをそのまま初回アップロード
         if (!snap.exists()) {
           if (Object.keys(favorites).length > 0) {
             await setDoc(ref, { favorites }, { merge: true });
+            alert("クラウド初回作成");
+          } else {
+            alert("クラウドにデータなし");
           }
           return;
         }
 
         const data = snap.data();
-        const cloudFavorites = (data && data.favorites && typeof data.favorites === "object")
-          ? data.favorites
-          : {};
+        const cloudFavorites =
+          data && data.favorites && typeof data.favorites === "object"
+            ? data.favorites
+            : {};
 
-        // ローカルを優先しつつ、クラウドも取り込む
         favorites = {
           ...cloudFavorites,
           ...favorites
         };
 
         saveFavoritesToLocalOnly();
-
-        // 統合後の状態をクラウドにも反映
         await setDoc(ref, { favorites }, { merge: true });
 
+        alert("クラウド読込成功");
       } catch (error) {
         console.error("クラウド読み込み失敗:", error);
+        alert(`クラウド読込失敗: ${error.code || ""} ${error.message || error}`);
       }
     }
+    
     async function saveFavoritesToCloud() {
-      if (!currentUser || !syncReady) return;
+      if (!currentUser) {
+        alert("未ログインなので同期されません");
+        return;
+      }
 
       try {
         const ref = doc(db, "users", currentUser.uid);
+
         await setDoc(ref, { favorites }, { merge: true });
+
+        alert("クラウド保存成功");
       } catch (error) {
         console.error("クラウド保存失敗:", error);
+        alert(`クラウド保存失敗: ${error.code || ""} ${error.message || error}`);
       }
     }
 
