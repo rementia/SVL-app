@@ -898,14 +898,6 @@
       localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
     }
 
-    async function saveFavorites() {
-      saveFavoritesToLocalOnly();
-
-      if (currentUser) {
-        await saveFavoritesToCloud();
-      }
-    }
-
     function saveChallengeModeState() {
       localStorage.setItem(STORAGE_KEYS.challengeMode, String(challengeMode));
     }
@@ -939,7 +931,7 @@
       return entries;
     }
 
-    async function toggleFavoriteCurrentWord() {
+    function toggleFavoriteCurrentWord() {
       const current = getCurrentWord();
       if (!current || !current.sourceVol) return;
 
@@ -951,9 +943,15 @@
         favorites[key] = true;
       }
 
-      await saveFavorites();
+      // まず即時にローカル保存とUI更新
+      saveFavoritesToLocalOnly();
       updateFavoriteToggleButton();
       createList();
+
+      // クラウド保存は裏で実行
+      if (currentUser) {
+        saveFavoritesToCloud();
+      }
 
       if (currentMode === "favorites") {
         const currentWord = current.word;
@@ -976,7 +974,6 @@
         render();
       }
     }
-
     async function loadFavoritesMode() {
       await ensureAllVolumesLoaded();
 
