@@ -427,6 +427,32 @@
       }
     }
 
+    @media (max-width: 768px) and (orientation: landscape) {
+      .login-btn {
+        bottom: 8px;
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      #loginBtn {
+        right: 8px;
+      }
+
+      #logoutBtn {
+        right: 88px;
+      }
+
+      .login-user {
+        bottom: 10px;
+        left: 8px;
+        font-size: 11px;
+        max-width: 110px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
     @media (max-width: 520px) {
       .top-bar {
         width: calc(100vw - 110px);
@@ -750,20 +776,41 @@
       }
     }
 
-    async function saveFavoritesToCloud() {
-      if (!currentUser || !syncReady) return;
+    async function loadFavoritesFromCloud() {
+      if (!currentUser) return;
 
       try {
         const ref = doc(db, "users", currentUser.uid);
-        await setDoc(
-          ref,
-          {
-            favorites
-          },
-          { merge: true }
-        );
+        const snap = await getDoc(ref);
+
+        // クラウドにまだデータがない → ローカルの favorites を初回アップロード
+        if (!snap.exists()) {
+          if (Object.keys(favorites).length > 0) {
+            await setDoc(ref, { favorites }, { merge: true });
+          }
+          return;
+        }
+
+        const data = snap.data();
+        const cloudFavorites = data?.favorites;
+
+        // クラウド側にお気に入りがあるときだけ上書き
+        if (
+          cloudFavorites &&
+          typeof cloudFavorites === "object" &&
+          Object.keys(cloudFavorites).length > 0
+        ) {
+          favorites = cloudFavorites;
+          saveFavoritesToLocalOnly();
+          return;
+        }
+
+        // クラウド側が空なら、ローカルに残っているお気に入りを優先してアップロード
+        if (Object.keys(favorites).length > 0) {
+          await setDoc(ref, { favorites }, { merge: true });
+        }
       } catch (error) {
-        console.error("クラウド保存失敗:", error);
+        console.error("クラウド読み込み失敗:", error);
       }
     }
 
