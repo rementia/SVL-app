@@ -771,8 +771,8 @@
           : {};
 
         favorites = {
-          ...cloudFavorites,
-          ...favorites
+          ...favorites,
+          ...cloudFavorites
         };
 
         saveFavoritesToLocalOnly();
@@ -791,7 +791,6 @@
       try {
         const ref = doc(db, "users", currentUser.uid);
         await setDoc(ref, { favorites }, { merge: true });
-        alert("保存成功: " + currentUser.uid);
       } catch (error) {
         alert("保存失敗: " + (error.code || "") + " " + (error.message || error));
         console.error("クラウド保存失敗:", error);
