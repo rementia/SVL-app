@@ -773,8 +773,13 @@
             : {};
 
         // ログイン後はクラウドを正とする
-        favorites = cloudFavorites;
+        const mergedFavorites = {
+          ...cloudFavorites,
+          ...favorites
+        };
+        favorites = mergedFavorites;
         saveFavoritesToLocalOnly();
+        await setDoc(ref, { favorites }, { merge: true });
 
       } catch (error) {
         console.error("クラウド読み込み失敗:", error);
