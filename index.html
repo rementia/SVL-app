@@ -326,6 +326,25 @@
       border-color: #444;
     }
 
+    .random-btn {
+      position: absolute;
+      top: 14px;
+      right: 200px;
+      z-index: 35;
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #bbb;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .random-btn.active {
+      background: #2f7df6;
+      color: #fff;
+      border-color: #444;
+    }
+
     .login-btn {
       position: absolute;
       bottom: 12px;
@@ -422,6 +441,13 @@
       .challenge-btn {
         top: 10px;
         right: 84px;
+        font-size: 13px;
+        padding: 8px 12px;
+      }
+
+      .random-btn {
+        top: 10px;
+        right: 168px;
         font-size: 13px;
         padding: 8px 12px;
       }
@@ -559,6 +585,18 @@
         border-color: #444;
       }
 
+      .random-btn {
+        background: #1f1f1f;
+        color: #eee;
+        border-color: #444;
+      }
+
+      .random-btn.active {
+        background: #2f7df6;
+        color: #eee;
+        border-color: #444;
+      }
+
       .login-btn {
         background: #1f1f1f;
         color: #eee;
@@ -580,6 +618,7 @@
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
     <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
     <button class="challenge-btn" id="challengeBtn" onclick="toggleChallengeMode()">想起学習</button>
+    <button class="random-btn" id="randomBtn" onclick="toggleRandomMode()">ランダム</button>
 
     <div class="top-bar">
       <button class="vol-btn" data-vol="vol1" onclick="loadSheet('vol1')">vol.1</button>
@@ -665,6 +704,7 @@
       autoSpeak: "tango_auto_speak",
       favorites: "tango_favorites",
       challengeMode: "tango_challenge_mode",
+      randomMode: "tango_random_mode"
     };
 
     // =========================
@@ -685,7 +725,9 @@
     let autoSpeak = false;
     let favorites = {};
     let challengeMode = false;
+    let randomMode = false;
     let meaningRevealTimer = null;
+    let shffledWords = [];
 
     let indexByVol = {
       vol1: 0,
@@ -825,6 +867,7 @@
       const savedIndexByVol = localStorage.getItem(STORAGE_KEYS.indexByVol);
       const savedFavorites = localStorage.getItem(STORAGE_KEYS.favorites);
       const savedChallengeMode = localStorage.getItem(STORAGE_KEYS.challengeMode);
+      const savedRandomMode = localStorage.getItem(STORAGE_KEYS.randomMode);
 
       if (savedVol && sheetUrls[savedVol]) {
         currentVol = savedVol;
@@ -862,9 +905,14 @@
         challengeMode = savedChallengeMode === "true";
       }
 
+      if (savedRandomMode !== null) {
+      randomMode = savedRandomMode === "true";
+    }
+
       updateAutoSpeakButton();
       applySidebarState();
       updateChallengeButton();
+      updateRandomButton();
     }
 
     function bindTouchEvents() {
@@ -929,6 +977,10 @@
       localStorage.setItem(STORAGE_KEYS.challengeMode, String(challengeMode));
     }
 
+    function saveRandomModeState() {
+      localStorage.setItem(STORAGE_KEYS.randomMode, String(randomMode));
+    }
+
     // =========================
     // Favorite helpers
     // =========================
@@ -981,8 +1033,6 @@
       }
 
       if (currentMode === "favorites") {
-        const currentWord = current.word;
-        const currentVolOfWord = current.sourceVol;
         const favoriteEntries = buildFavoriteEntries();
 
         if (favoriteEntries.length === 0) {
@@ -991,11 +1041,8 @@
           return;
         }
 
-        words = favoriteEntries;
-        const newIndex = words.findIndex(
-          (item) => item.word === currentWord && item.sourceVol === currentVolOfWord
-        );
-        index = newIndex >= 0 ? newIndex : Math.min(index, words.length - 1);
+        applyWordOrder(false);
+        index = Math.min(index, words.length - 1);
         indexByVol.favorites = index;
         saveIndexByVol();
         render();
@@ -1012,7 +1059,7 @@
       }
 
       currentMode = "favorites";
-      words = favoriteEntries;
+      applyWordOrder(false);
       index = Math.min(indexByVol.favorites || 0, words.length - 1);
       render();
     }
@@ -1034,7 +1081,7 @@
           allWordsByVol[volName] = parseCsvToWords(text, volName);
         }
 
-        words = [...allWordsByVol[volName]];
+        applyWordOrder(false);
         console.log("words loaded:", words.length, words[0]);
         index = Math.min(indexByVol[volName] || 0, Math.max(words.length - 1, 0));
         render();
@@ -1082,6 +1129,52 @@
         .filter((item) => item.word);
     }
 
+    function shuffleArray(array) {
+      const copied = [...array];
+      for (let i = copied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copied[i], copied[j]] = [copied[j], copied[i]];
+      }
+      return copied;
+    }
+
+    function applyWordOrder(resetIndex = false) {
+      const baseWords =
+        currentMode === "favorites"
+          ? buildFavoriteEntries()
+          : [...(allWordsByVol[currentVol] || [])];
+
+      if (randomMode) {
+        shuffledWords = shuffleArray(baseWords);
+        words = shuffledWords;
+      } else {
+        words = baseWords;
+      }
+
+      if (resetIndex) {
+        index = 0;
+      } else {
+        index = Math.min(index, Math.max(words.length - 1, 0));
+      }
+    }
+
+    function updateRandomButton() {
+      const btn = document.getElementById("randomBtn");
+      if (!btn) return;
+
+      btn.textContent = "ランダム";
+      btn.classList.toggle("active", randomMode);
+    }
+
+    function toggleRandomMode() {
+      randomMode = !randomMode;
+      saveRandomModeState();
+      updateRandomButton();
+
+      applyWordOrder(true);
+      render();
+    }
+
     // =========================
     // Render
     // =========================
@@ -1090,6 +1183,7 @@
       showWord();
       updateCurrentLabel();
       updateTopButtons();
+      updateRandomButton();
       applySidebarState();
     }
 
@@ -1405,6 +1499,7 @@
     window.prevWord = prevWord;
     window.nextWord = nextWord;
     window.speakWord = speakWord;
+    window.toggleRandomMode = toggleRandomMode;
 
     try {
       init();
