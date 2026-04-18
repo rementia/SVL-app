@@ -727,7 +727,7 @@
     let challengeMode = false;
     let randomMode = false;
     let meaningRevealTimer = null;
-    let shffledWords = [];
+    let shuffledWords = [];
 
     let indexByVol = {
       vol1: 0,
@@ -1145,9 +1145,12 @@
           : [...(allWordsByVol[currentVol] || [])];
 
       if (randomMode) {
-        shuffledWords = shuffleArray(baseWords);
+        if (shuffledWords.length === 0) {
+          shuffledWords = shuffleArray(baseWords);
+        }
         words = shuffledWords;
       } else {
+        shuffledWords = [];
         words = baseWords;
       }
 
