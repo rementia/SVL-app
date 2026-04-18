@@ -1089,6 +1089,7 @@
       }
 
       currentMode = "favorites";
+      shuffledWords = [];
       applyWordOrder(false);
       index = Math.min(indexByVol.favorites || 0, words.length - 1);
       render();
@@ -1102,6 +1103,7 @@
       try {
         currentMode = "vol";
         currentVol = volName;
+        shuffledWords = [];
         saveCurrentVol();
 
         if (!allWordsByVol[volName] || allWordsByVol[volName].length === 0) {
