@@ -380,8 +380,11 @@
     @media (max-width: 768px) {
       .top-bar {
         top: 10px;
-        width: calc(100vw - 120px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100vw - 170px);
         gap: 6px;
+        padding: 0 6px;
       }
 
       .vol-btn,
@@ -393,22 +396,41 @@
 
       .toggle-btn,
       .auto-speak-btn,
-      .favorite-toggle-btn {
-        top: 10px;
+      .challenge-btn {
+        right: 10px;
+        left: auto;
+        width: 104px;
         font-size: 13px;
-        padding: 8px 12px;
+        padding: 8px 10px;
+        text-align: center;
       }
 
       .toggle-btn {
-        left: 10px;
+        top: 10px;
       }
 
       .auto-speak-btn {
-        left: 86px;
+        top: 52px;
+      }
+
+      .challenge-btn {
+        top: 94px;
       }
 
       .favorite-toggle-btn {
-        right: 10px;
+        top: 10px;
+        right: 122px;
+        font-size: 13px;
+        padding: 8px 12px;
+        min-width: 56px;
+      }
+
+      .random-btn {
+        top: 52px;
+        right: 122px;
+        font-size: 13px;
+        padding: 8px 12px;
+        min-width: 72px;
       }
 
       .sidebar {
@@ -436,20 +458,6 @@
 
       .main-btn {
         padding: 14px 22px;
-      }
-
-      .challenge-btn {
-        top: 10px;
-        right: 84px;
-        font-size: 13px;
-        padding: 8px 12px;
-      }
-
-      .random-btn {
-        top: 10px;
-        right: 168px;
-        font-size: 13px;
-        padding: 8px 12px;
       }
     }
 
