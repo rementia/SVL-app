@@ -97,6 +97,9 @@
       border-radius: 12px;
       background: #fff;
       cursor: pointer;
+      min-width: 56px;
+      font-weight: 700;
+      color: #888;
     }
 
     .toggle-btn:hover,
@@ -231,6 +234,24 @@
       justify-content: center;
       gap: 18px;
       padding: 12px 24px;
+    }
+
+    .word-area {
+      position: relative;
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .favorite-toggle-btn.in-word {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 56px;
+      font-weight: 700;
     }
 
     .current-vol {
@@ -429,10 +450,12 @@
         text-align: center;
       }
 
-      .favorite-toggle-btn {
-        top: 10px;
-        right: 122px;
-        min-width: 56px;
+      .favorite-toggle-btn.in-word {
+        top: 0;
+        right: 0;
+        min-width: 52px;
+        font-size: 13px;
+        padding: 8px 10px;
       }
 
       .sidebar {
@@ -626,7 +649,6 @@
     <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
     <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
     <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
-    <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
     <button class="challenge-btn" id="challengeBtn" onclick="toggleChallengeMode()">想起学習</button>
     <button class="random-btn" id="randomBtn" onclick="toggleRandomMode()">ランダム</button>
 
@@ -646,6 +668,7 @@
       <div class="main-layout">
         <div class="center-box">
           <div class="current-vol" id="current">vol.1</div>
+          <button class="favorite-toggle-btn" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
           <div id="word">読み込み中...</div>
           <div id="meaning"></div>
 
