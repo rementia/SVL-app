@@ -39,6 +39,18 @@
       visibility: hidden;
     }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .app {
       position: relative;
       width: 100%;
@@ -640,22 +652,22 @@
 </head>
 <body class="loading">
   <div class="app">
-    <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()">Googleログイン</button>
-    <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;">ログアウト</button>
-    <button class="toggle-btn" onclick="toggleSidebar()">一覧</button>
-    <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()">自動発音：OFF</button>
-    <button class="challenge-btn" id="challengeBtn" onclick="toggleChallengeMode()">想起学習</button>
-    <button class="random-btn" id="randomBtn" onclick="toggleRandomMode()">ランダム</button>
+    <button class="login-btn" id="loginBtn" onclick="signInWithGoogle()" aria-label="Googleでログイン">Googleログイン</button>
+    <button class="login-btn" id="logoutBtn" onclick="signOutUser()" style="display:none;" aria-label="ログアウト">ログアウト</button>
+    <button class="toggle-btn" id="toggleSidebarBtn" onclick="toggleSidebar()" aria-label="一覧を開閉" aria-controls="sidebar" aria-expanded="true">一覧</button>
+    <button class="auto-speak-btn" id="autoSpeakBtn" onclick="toggleAutoSpeak()" aria-label="自動発音" aria-pressed="false">自動発音：OFF</button>
+    <button class="challenge-btn" id="challengeBtn" onclick="toggleChallengeMode()" aria-label="想起学習" aria-pressed="false">想起学習</button>
+    <button class="random-btn" id="randomBtn" onclick="toggleRandomMode()" aria-label="ランダム" aria-pressed="false">ランダム</button>
 
     <div class="top-bar">
       <button class="vol-btn" data-vol="vol1" onclick="loadSheet('vol1')">vol.1</button>
       <button class="vol-btn" data-vol="vol2" onclick="loadSheet('vol2')">vol.2</button>
       <button class="vol-btn" data-vol="vol3" onclick="loadSheet('vol3')">vol.3</button>
       <button class="vol-btn" data-vol="vol4" onclick="loadSheet('vol4')">vol.4</button>
-      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()">★</button>
+      <button class="favorite-list-btn" id="favoriteListBtn" onclick="loadFavoritesMode()" aria-label="お気に入り一覧を表示">★</button>
     </div>
 
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar" role="listbox" aria-label="単語一覧">
       <div id="list"></div>
     </div>
 
@@ -663,27 +675,27 @@
       <div class="main-layout">
         <div class="center-box">
           <div class="current-row">
-            <div class="current-vol" id="current">vol.1</div>
-            <button class="favorite-toggle-btn inline-favorite" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()">☆</button>
+            <div class="current-vol" id="current" aria-live="polite">vol.1</div>
+            <button class="favorite-toggle-btn inline-favorite" id="favoriteToggleBtn" onclick="toggleFavoriteCurrentWord()" aria-label="現在の単語をお気に入り登録" aria-pressed="false">☆</button>
           </div>
 
-          <div id="word">読み込み中...</div>
-          <div id="meaning"></div>
+          <div id="word" aria-live="polite">読み込み中...</div>
+          <div id="meaning" aria-live="polite"></div>
 
           <div class="button-row">
             <div class="nav-box">
               <div class="nav-hint" id="prevHint"></div>
-              <button class="main-btn" onclick="prevWord()">戻る</button>
+              <button class="main-btn" onclick="prevWord()" aria-label="前の単語へ戻る">戻る</button>
             </div>
 
             <div class="nav-box">
-              <div id="pronunciation"></div>
-              <button class="main-btn speak-btn" onclick="speakWord()">発音</button>
+              <div id="pronunciation" aria-live="polite"></div>
+              <button class="main-btn speak-btn" onclick="speakWord()" aria-label="現在の単語を発音">発音</button>
             </div>
 
             <div class="nav-box">
                 <div class="nav-hint" id="nextHint"></div>
-              <button class="main-btn" onclick="nextWord()">進む</button>
+              <button class="main-btn" onclick="nextWord()" aria-label="次の単語へ進む">進む</button>
             </div>
           </div>
         </div>
@@ -780,6 +792,7 @@
     function init() {
       loadSavedState();
       bindTouchEvents();
+      bindKeyboardShortcuts();
       setupAuthListener();
       loadSheet(currentVol);
     }
@@ -871,6 +884,35 @@
       );
     }
 
+    function bindKeyboardShortcuts() {
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        if (target instanceof HTMLElement) {
+          const tagName = target.tagName;
+          if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(tagName)) {
+            return;
+          }
+          if (target.isContentEditable) {
+            return;
+          }
+        }
+
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          prevWord();
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          nextWord();
+        } else if (event.key.toLowerCase() === "f") {
+          event.preventDefault();
+          toggleFavoriteCurrentWord();
+        } else if (event.key.toLowerCase() === "p") {
+          event.preventDefault();
+          speakWord();
+        }
+      });
+    }
+
     // =========================
     // Auth
     // =========================
@@ -911,6 +953,7 @@
     function updateAuthUI() {
       const loginBtn = document.getElementById("loginBtn");
       const logoutBtn = document.getElementById("logoutBtn");
+      const toggleBtn = document.getElementById("toggleSidebarBtn");
 
       if (!loginBtn || !logoutBtn) return;
 
@@ -920,6 +963,10 @@
       } else {
         loginBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
+      }
+
+      if (toggleBtn) {
+        toggleBtn.setAttribute("aria-expanded", String(sidebarOpen));
       }
     }
 
@@ -1281,9 +1328,24 @@
       words.forEach((item, itemIndex) => {
         const row = document.createElement("div");
         row.className = "word-item";
+        row.setAttribute("role", "option");
+        row.setAttribute("tabindex", "0");
+        row.setAttribute("aria-selected", itemIndex === index ? "true" : "false");
+        row.setAttribute("aria-label",
+          currentMode === "favorites"
+            ? `${item.word} ${item.sourceVol.replace("vol", "vol.")}`
+            : item.word
+        );
         row.onclick = () => {
           index = itemIndex;
           renderCurrentWord();
+        };
+        row.onkeydown = (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            index = itemIndex;
+            renderCurrentWord();
+          }
         };
 
         const label = document.createElement("span");
@@ -1382,12 +1444,20 @@
       const button = document.getElementById("favoriteToggleBtn");
       const current = getCurrentWord();
 
-      if (!button || !current) return;
+      if (!button) return;
+
+      if (!current) {
+        button.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-label", "現在の単語をお気に入り登録");
+        return;
+      }
 
       const active = isFavorite(current.sourceVol, current.word);
       button.textContent = active ? "★" : "☆";
       button.classList.toggle("active", active);
       button.title = active ? "★解除" : "★登録";
+      button.setAttribute("aria-pressed", String(active));
+      button.setAttribute("aria-label", active ? "現在の単語のお気に入り登録を解除" : "現在の単語をお気に入り登録");
     }
 
     function updateNavHints() {
@@ -1416,6 +1486,7 @@
 
       btn.textContent = "自動発音";
       btn.classList.toggle("active", autoSpeak);
+      btn.setAttribute("aria-pressed", String(autoSpeak));
     }
 
     function updateChallengeButton() {
@@ -1424,6 +1495,7 @@
 
       btn.textContent = "想起学習";
       btn.classList.toggle("active", challengeMode);
+      btn.setAttribute("aria-pressed", String(challengeMode));
     }
 
     function updateRandomButton() {
@@ -1432,6 +1504,7 @@
 
       btn.textContent = "ランダム";
       btn.classList.toggle("active", randomMode);
+      btn.setAttribute("aria-pressed", String(randomMode));
     }
 
     function updateMeaningDisplay(meaning) {
@@ -1454,7 +1527,9 @@
     function highlightActiveWord() {
       const items = document.querySelectorAll(".word-item");
       items.forEach((item, itemIndex) => {
-        item.classList.toggle("active", itemIndex === index);
+        const isActive = itemIndex === index;
+        item.classList.toggle("active", isActive);
+        item.setAttribute("aria-selected", String(isActive));
       });
     }
 
@@ -1472,8 +1547,13 @@
 
     function applySidebarState() {
       const sidebar = document.getElementById("sidebar");
-      if (!sidebar) return;
-      sidebar.classList.toggle("hidden", !sidebarOpen);
+      const toggleBtn = document.getElementById("toggleSidebarBtn");
+      if (sidebar) {
+        sidebar.classList.toggle("hidden", !sidebarOpen);
+      }
+      if (toggleBtn) {
+        toggleBtn.setAttribute("aria-expanded", String(sidebarOpen));
+      }
     }
 
     // =========================
