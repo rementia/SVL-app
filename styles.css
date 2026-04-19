@@ -18,24 +18,16 @@
   --control-radius: 12px;
   --main-btn-radius: 16px;
 
-  --header-offset: 70px;
-  --header-top: 12px;
+  --header-height: 78px;
   --sidebar-width: 150px;
   --sidebar-padding: 10px 8px 20px;
   --main-padding: 16px;
-  --topbar-width: min(92vw, 860px);
   --topbar-gap: 8px;
 
   --control-font-size: 14px;
   --control-padding: 10px 14px;
   --control-min-width: 104px;
   --control-stack-gap: 10px;
-  --control-right: 12px;
-  --control-top: 14px;
-  --toggle-top: 14px;
-  --toggle-left: 12px;
-  --header-left-reserve: 140px;
-  --header-right-reserve: 140px;
 
   --vol-font-size: 16px;
   --vol-padding: 10px 18px;
@@ -82,22 +74,56 @@ body.loading {
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--app-bg);
 }
 
-.top-bar {
+.app-header {
   position: absolute;
-  top: var(--header-top);
-  left: var(--header-left-reserve);
-  right: var(--header-right-reserve);
-  z-index: 30;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  display: grid;
+  grid-template-columns: minmax(88px, 140px) 1fr minmax(110px, 160px);
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+  z-index: 40;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  min-width: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.header-center {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.top-bar {
   display: flex;
   gap: var(--topbar-gap);
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  padding: 0 8px;
+  min-width: 0;
 }
 
 .vol-btn,
@@ -137,7 +163,6 @@ body.loading {
 }
 
 .control-btn {
-  z-index: 35;
   font-size: var(--control-font-size);
   padding: var(--control-padding);
   min-width: var(--control-min-width);
@@ -155,16 +180,10 @@ body.loading {
 }
 
 .toggle-btn {
-  position: absolute;
-  top: var(--toggle-top);
-  left: var(--toggle-left);
+  min-width: 88px;
 }
 
 .control-stack {
-  position: absolute;
-  top: var(--control-top);
-  right: var(--control-right);
-  z-index: 35;
   display: flex;
   flex-direction: column;
   gap: var(--control-stack-gap);
@@ -172,7 +191,6 @@ body.loading {
 }
 
 .control-stack .control-btn {
-  position: static;
   width: 104px;
   text-align: center;
 }
@@ -193,6 +211,7 @@ body.loading {
 
 .speak-btn {
   background: var(--accent);
+  color: var(--accent-contrast);
 }
 
 .speak-btn:hover {
@@ -201,10 +220,11 @@ body.loading {
 
 .sidebar {
   position: absolute;
-  top: var(--header-offset);
+  top: var(--header-height);
   left: 0;
   width: var(--sidebar-width);
-  height: calc(100vh - var(--header-offset));
+  height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   border-right: 1px solid var(--sidebar-border);
   overflow-y: auto;
   background: var(--sidebar-bg);
@@ -256,10 +276,11 @@ body.loading {
 
 .main {
   position: absolute;
-  top: var(--header-offset);
+  top: var(--header-height);
   left: 0;
   width: 100%;
-  height: calc(100vh - var(--header-offset));
+  height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   padding: var(--main-padding);
   display: flex;
   align-items: center;
@@ -375,7 +396,7 @@ body.loading {
   position: absolute;
   bottom: var(--login-bottom);
   right: var(--login-right);
-  z-index: 40;
+  z-index: 45;
   font-size: 13px;
   padding: 8px 12px;
 }
@@ -383,33 +404,29 @@ body.loading {
 @media (max-width: 900px) {
   :root {
     --sidebar-width: 110px;
-    --header-left-reserve: 130px;
-    --header-right-reserve: 130px;
   }
 }
 
 @media (max-width: 768px) {
   :root {
-    --header-top: 10px;
-    --header-offset: 60px;
+    --header-height: 68px;
     --sidebar-width: 100px;
     --sidebar-padding: 8px 6px 16px;
     --main-padding: 12px;
-    --topbar-width: calc(100vw - 140px);
     --topbar-gap: 6px;
     --vol-font-size: 14px;
     --vol-padding: 8px 12px;
     --vol-min-width: 72px;
     --control-font-size: 13px;
     --control-padding: 8px 12px;
-    --toggle-top: 10px;
-    --toggle-left: 10px;
-    --control-top: 10px;
-    --control-right: 10px;
-    --header-left-reserve: 118px;
-    --header-right-reserve: 118px;
     --space-box: 16px;
     --space-center-padding: 8px 12px;
+  }
+
+  .app-header {
+    grid-template-columns: 92px 1fr 110px;
+    gap: 8px;
+    padding: 10px;
   }
 
   .favorite-toggle-btn.inline-favorite {
@@ -431,8 +448,17 @@ body.loading {
 @media (max-width: 520px) {
   :root {
     --space-box: 14px;
-    --header-left-reserve: 110px;
-    --header-right-reserve: 110px;
+  }
+
+  .app-header {
+    grid-template-columns: 80px 1fr 96px;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .control-stack .control-btn {
+    width: 96px;
+    font-size: 12px;
   }
 
   #word {

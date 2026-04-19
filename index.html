@@ -13,24 +13,32 @@
 </head>
 <body class="loading">
   <div class="app">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="control-btn toggle-btn" id="toggleSidebarBtn">一覧</button>
+      </div>
+
+      <div class="header-center">
+        <div class="top-bar">
+          <button class="vol-btn" data-vol="vol1">vol.1</button>
+          <button class="vol-btn" data-vol="vol2">vol.2</button>
+          <button class="vol-btn" data-vol="vol3">vol.3</button>
+          <button class="vol-btn" data-vol="vol4">vol.4</button>
+          <button class="favorite-list-btn" id="favoriteListBtn">★</button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="control-stack" aria-label="学習設定">
+          <button class="control-btn auto-speak-btn" id="autoSpeakBtn">自動発音</button>
+          <button class="control-btn challenge-btn" id="challengeBtn">想起学習</button>
+          <button class="control-btn random-btn" id="randomBtn">ランダム</button>
+        </div>
+      </div>
+    </header>
+
     <button class="login-btn" id="loginBtn">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" style="display:none;">ログアウト</button>
-
-    <button class="control-btn toggle-btn" id="toggleSidebarBtn">一覧</button>
-
-    <div class="control-stack" aria-label="学習設定">
-      <button class="control-btn auto-speak-btn" id="autoSpeakBtn">自動発音：OFF</button>
-      <button class="control-btn challenge-btn" id="challengeBtn">想起学習</button>
-      <button class="control-btn random-btn" id="randomBtn">ランダム</button>
-    </div>
-
-    <div class="top-bar">
-      <button class="vol-btn" data-vol="vol1">vol.1</button>
-      <button class="vol-btn" data-vol="vol2">vol.2</button>
-      <button class="vol-btn" data-vol="vol3">vol.3</button>
-      <button class="vol-btn" data-vol="vol4">vol.4</button>
-      <button class="favorite-list-btn" id="favoriteListBtn">★</button>
-    </div>
 
     <div class="sidebar" id="sidebar">
       <div id="list"></div>
