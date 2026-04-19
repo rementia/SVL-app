@@ -799,7 +799,6 @@ function renderCurrentWord() {
     if (pronunciationEl) pronunciationEl.textContent = "";
     if (prevHintEl) prevHintEl.textContent = "";
     if (nextHintEl) nextHintEl.textContent = "";
-    if (statusLineEl) statusLineEl.textContent = "";
     updateFavoriteToggleButton();
     return;
   }
