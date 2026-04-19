@@ -884,6 +884,18 @@ function updateNavHints() {
     return;
   }
 
+  const prevIndex = randomMode && historyBackStack.length
+    ? historyBackStack[historyBackStack.length - 1]
+    : (index - 1 + words.length) % words.length;
+
+  const nextIndex = randomMode && historyForwardStack.length
+    ? historyForwardStack[historyForwardStack.length - 1]
+    : (index + 1) % words.length;
+
+  prevHintEl.textContent = words[prevIndex]?.word || "";
+  nextHintEl.textContent = words[nextIndex]?.word || "";
+}
+
 function updateProgress() {
   if (!progressEl) return;
 
@@ -896,18 +908,6 @@ function updateProgress() {
   const current = total === 0 ? 0 : index + 1;
 
   progressEl.textContent = `${current} / ${total}`;
-}
-
-  const prevIndex = randomMode && historyBackStack.length
-    ? historyBackStack[historyBackStack.length - 1]
-    : (index - 1 + words.length) % words.length;
-
-  const nextIndex = randomMode && historyForwardStack.length
-    ? historyForwardStack[historyForwardStack.length - 1]
-    : (index + 1) % words.length;
-
-  prevHintEl.textContent = words[prevIndex]?.word || "";
-  nextHintEl.textContent = words[nextIndex]?.word || "";
 }
 
 function updateAutoSpeakButton() {
