@@ -59,7 +59,6 @@ const pronunciationEl = document.getElementById("pronunciation");
 const prevHintEl = document.getElementById("prevHint");
 const nextHintEl = document.getElementById("nextHint");
 const currentEl = document.getElementById("current");
-const statusLineEl = document.getElementById("statusLine");
 
 const favoriteToggleBtnEl = document.getElementById("favoriteToggleBtn");
 const favoriteListBtnEl = document.getElementById("favoriteListBtn");
@@ -820,7 +819,6 @@ function updateCurrentStateMeta() {
   scrollActiveWordIntoView(activeItem);
   updateNavHints();
   updateFavoriteToggleButton();
-  updateStatusLine();
 }
 
 function persistCurrentIndex() {
@@ -895,32 +893,12 @@ function updateNavHints() {
   nextHintEl.textContent = words[nextIndex]?.word || "";
 }
 
-function updateStatusLine() {
-  if (!statusLineEl) return;
-
-  const parts = [];
-  if (challengeMode) {
-    parts.push(`想起学習 ${challengeTime / 1000}秒`);
-  }
-  if (autoSpeak) {
-    parts.push("自動発音 ON");
-  }
-  if (randomMode) {
-    parts.push("ランダム ON");
-  }
-
-  statusLineEl.textContent = parts.join(" / ");
-}
-
 function updateAutoSpeakButton() {
   updateToggleButton(autoSpeakBtnEl, "自動発音", autoSpeak);
 }
 
 function updateChallengeButton() {
-  const label = challengeMode
-    ? `想起学習 ${challengeTime / 1000}秒`
-    : "想起学習";
-  updateToggleButton(challengeBtnEl, label, challengeMode);
+  updateToggleButton(challengeBtnEl, "想起学習", challengeMode);
 }
 
 function updateRandomButton() {
@@ -1023,15 +1001,12 @@ function toggleAutoSpeak() {
   } else {
     scheduleAutoSpeak();
   }
-
-  updateStatusLine();
 }
 
 function toggleChallengeMode() {
   challengeMode = !challengeMode;
   saveChallengeModeState();
   updateChallengeButton();
-  updateStatusLine();
   renderCurrentWord();
 }
 

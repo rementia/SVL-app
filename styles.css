@@ -356,12 +356,6 @@ body.loading {
   max-width: 220px;
 }
 
-.status-line {
-  min-height: 1.4em;
-  font-size: 14px;
-  color: var(--muted-text);
-}
-
 .help-line {
   min-height: 1.4em;
   font-size: 12px;
