@@ -511,6 +511,57 @@ body.loading {
     font-size: 12px;
     padding: 6px 10px;
   }
+
+  @media (max-width: 768px) and (orientation: landscape) {
+
+  /* 上の余白を削る */
+  .center-box {
+    justify-content: flex-start;
+    padding-top: 4px;
+    gap: 8px;
+  }
+
+  /* 見出しを少し詰める */
+  .current-row {
+    margin-top: 4px;
+  }
+
+  /* 単語サイズ少し下げる */
+  #word {
+    font-size: clamp(26px, 6vw, 40px);
+  }
+
+  /* 訳を安定させる（2行確保） */
+  #meaning {
+    font-size: clamp(18px, 3.5vw, 24px);
+    min-height: 2.6em;
+  }
+
+  /* ボタンをコンパクトに */
+  .main-btn {
+    padding: 8px 16px;
+    font-size: clamp(14px, 2vw, 20px);
+  }
+
+  /* ボタン間の余白を詰める */
+  .button-row {
+    gap: 10px;
+  }
+
+  .nav-box {
+    min-width: 110px;
+    gap: 4px;
+  }
+
+  .nav-hint {
+    font-size: clamp(12px, 2vw, 16px);
+  }
+
+  /* ヘルプ行は消す（横では邪魔） */
+  .help-line {
+    display: none;
+  }
+}
 }
 
 @media (prefers-color-scheme: dark) {
