@@ -170,7 +170,7 @@ body.loading {
 
 .control-btn.active,
 .control-btn.is-emphasized {
-  font-weight: 700;
+  font-weight: normal;
 }
 
 .control-btn.active-blue {
