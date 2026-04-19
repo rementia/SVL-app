@@ -55,6 +55,7 @@ const listEl = document.getElementById("list");
 const sidebarEl = document.getElementById("sidebar");
 const wordEl = document.getElementById("word");
 const meaningEl = document.getElementById("meaning");
+const progressEl = document.getElementById("progress");
 const pronunciationEl = document.getElementById("pronunciation");
 const prevHintEl = document.getElementById("prevHint");
 const nextHintEl = document.getElementById("nextHint");
@@ -794,6 +795,7 @@ function renderCurrentWord() {
   if (!current) {
     if (wordEl) wordEl.textContent = currentMode === "favorites" ? "お気に入りがありません" : "単語がありません";
     if (meaningEl) meaningEl.textContent = currentMode === "favorites" ? "☆を付けるとここに表示されます" : "";
+    if (progressEl) progressEl.textContent = "";
     if (pronunciationEl) pronunciationEl.textContent = "";
     if (prevHintEl) prevHintEl.textContent = "";
     if (nextHintEl) nextHintEl.textContent = "";
@@ -819,6 +821,7 @@ function updateCurrentStateMeta() {
   scrollActiveWordIntoView(activeItem);
   updateNavHints();
   updateFavoriteToggleButton();
+  updateProgress();
 }
 
 function persistCurrentIndex() {
@@ -880,6 +883,20 @@ function updateNavHints() {
     nextHintEl.textContent = "";
     return;
   }
+
+function updateProgress() {
+  if (!progressEl) return;
+
+  if (randomMode) {
+    progressEl.textContent = "";
+    return;
+  }
+
+  const total = words.length;
+  const current = total === 0 ? 0 : index + 1;
+
+  progressEl.textContent = `${current} / ${total}`;
+}
 
   const prevIndex = randomMode && historyBackStack.length
     ? historyBackStack[historyBackStack.length - 1]

@@ -347,6 +347,13 @@ body.loading {
   min-height: 1.6em;
 }
 
+#progress {
+  font-size: 13px;
+  color: var(--muted-text);
+  margin-top: -6px;
+  min-height: 1.2em;
+}
+
 #pronunciation {
   font-size: clamp(14px, 1.8vw, 20px);
   color: var(--muted-text);
