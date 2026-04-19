@@ -2,37 +2,78 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
   <title>SVL</title>
 
   <link rel="icon" href="SVL_icon.png" />
   <link rel="apple-touch-icon" href="SVL_icon.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="loading">
   <div class="app">
     <header class="app-header">
       <div class="header-left">
-        <button class="control-btn toggle-btn" id="toggleSidebarBtn">一覧</button>
+        <button
+          class="control-btn toggle-btn"
+          id="toggleSidebarBtn"
+          aria-label="一覧の表示切替"
+          title="一覧"
+        >
+          一覧
+        </button>
       </div>
 
       <div class="header-center">
-        <div class="top-bar">
+        <div class="top-bar" aria-label="vol選択">
           <button class="vol-btn" data-vol="vol1">vol.1</button>
           <button class="vol-btn" data-vol="vol2">vol.2</button>
           <button class="vol-btn" data-vol="vol3">vol.3</button>
           <button class="vol-btn" data-vol="vol4">vol.4</button>
-          <button class="favorite-list-btn" id="favoriteListBtn">★</button>
+          <button
+            class="favorite-list-btn"
+            id="favoriteListBtn"
+            aria-label="お気に入り一覧"
+            title="お気に入り一覧"
+          >
+            ☆一覧
+          </button>
         </div>
       </div>
 
       <div class="header-right">
         <div class="control-stack" aria-label="学習設定">
-          <button class="control-btn auto-speak-btn" id="autoSpeakBtn">自動発音</button>
-          <button class="control-btn challenge-btn" id="challengeBtn">想起学習</button>
-          <button class="control-btn random-btn" id="randomBtn">ランダム</button>
+          <button
+            class="control-btn auto-speak-btn"
+            id="autoSpeakBtn"
+            aria-label="自動発音"
+            title="自動発音"
+          >
+            自動発音
+          </button>
+
+          <button
+            class="control-btn challenge-btn"
+            id="challengeBtn"
+            aria-label="想起学習"
+            title="想起学習（右クリックで時間変更）"
+          >
+            想起学習
+          </button>
+
+          <button
+            class="control-btn random-btn"
+            id="randomBtn"
+            aria-label="ランダム"
+            title="ランダム"
+          >
+            ランダム
+          </button>
         </div>
       </div>
     </header>
@@ -40,20 +81,29 @@
     <button class="login-btn" id="loginBtn">Googleログイン</button>
     <button class="login-btn" id="logoutBtn" style="display:none;">ログアウト</button>
 
-    <div class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" aria-label="単語一覧">
       <div id="list"></div>
-    </div>
+    </aside>
 
     <main class="main">
       <div class="main-layout">
         <div class="center-box">
           <div class="current-row">
             <div class="current-vol" id="current">vol.1</div>
-            <button class="control-btn favorite-toggle-btn inline-favorite" id="favoriteToggleBtn">☆</button>
+            <button
+              class="control-btn favorite-toggle-btn inline-favorite"
+              id="favoriteToggleBtn"
+              aria-label="お気に入り登録切替"
+              title="お気に入り登録切替"
+            >
+              ☆
+            </button>
           </div>
 
           <div id="word">読み込み中...</div>
           <div id="meaning"></div>
+
+          <div class="status-line" id="statusLine"></div>
 
           <div class="button-row">
             <div class="nav-box">
@@ -70,6 +120,10 @@
               <div class="nav-hint" id="nextHint"></div>
               <button class="main-btn" id="nextWordBtn">進む</button>
             </div>
+          </div>
+
+          <div class="help-line">
+            ← → : 前後移動 / Space : 発音 / F : ☆ / R : ランダム
           </div>
         </div>
       </div>

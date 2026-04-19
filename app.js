@@ -1,6 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCgVh9fmwib7ox-I1Q9c5IU-B4909XkhkU",
@@ -20,6 +32,7 @@ const sheetUrls = {
 };
 
 const volOrder = ["vol1", "vol2", "vol3", "vol4"];
+const challengeTimes = [1000, 1500, 3000];
 
 const STORAGE_KEYS = {
   vol: "tango_current_vol",
@@ -29,6 +42,7 @@ const STORAGE_KEYS = {
   favorites: "tango_favorites",
   favoritesUpdatedAt: "tango_favorites_updated_at",
   challengeMode: "tango_challenge_mode",
+  challengeTime: "tango_challenge_time",
   randomMode: "tango_random_mode"
 };
 
@@ -45,6 +59,8 @@ const pronunciationEl = document.getElementById("pronunciation");
 const prevHintEl = document.getElementById("prevHint");
 const nextHintEl = document.getElementById("nextHint");
 const currentEl = document.getElementById("current");
+const statusLineEl = document.getElementById("statusLine");
+
 const favoriteToggleBtnEl = document.getElementById("favoriteToggleBtn");
 const favoriteListBtnEl = document.getElementById("favoriteListBtn");
 const autoSpeakBtnEl = document.getElementById("autoSpeakBtn");
@@ -61,7 +77,13 @@ const volButtons = Array.from(document.querySelectorAll(".vol-btn"));
 let currentUser = null;
 let favoritesUnsubscribe = null;
 
-let allWordsByVol = { vol1: [], vol2: [], vol3: [], vol4: [] };
+let allWordsByVol = {
+  vol1: [],
+  vol2: [],
+  vol3: [],
+  vol4: []
+};
+
 let words = [];
 let index = 0;
 let currentVol = "vol1";
@@ -71,18 +93,29 @@ let autoSpeak = false;
 let favorites = {};
 let favoritesUpdatedAt = 0;
 let challengeMode = false;
+let challengeTime = 1500;
 let randomMode = false;
 
 let meaningRevealTimer = null;
 let autoSpeakTimer = null;
-let lastPronunciationRequest = "";
 let currentPronunciationController = null;
+let lastPronunciationRequest = "";
 let hasFinishedInitialLoading = false;
+
 let listNeedsRebuild = true;
-let renderedListVersion = 0;
+let renderedListVersion = "";
 let listVersion = 0;
 let favoritesVersion = 0;
-let indexByVol = { vol1: 0, vol2: 0, vol3: 0, vol4: 0, favorites: 0 };
+
+let indexByVol = {
+  vol1: 0,
+  vol2: 0,
+  vol3: 0,
+  vol4: 0,
+  favorites: 0
+};
+
+let shuffledWordsMap = {};
 let touchStartX = 0;
 let touchStartY = 0;
 let touchEndX = 0;
@@ -91,16 +124,18 @@ let lastTouchEnd = 0;
 let swipeEnabled = false;
 
 /**
- * mode+vol ごとのランダム順キャッシュ
- * 例: vol:vol1 / favorites:all
+ * ランダム中の「戻る」を履歴ベースにするための履歴
  */
-let shuffledWordsMap = {};
+let historyBackStack = [];
+let historyForwardStack = [];
 
 function init() {
   loadSavedState();
   bindTouchEvents();
   bindUIEvents();
+  bindKeyboardEvents();
   setupAuthListener();
+  updateSpeechButtonAvailability();
   loadSheet(currentVol);
 }
 
@@ -123,10 +158,17 @@ function bindUIEvents() {
   nextWordBtnEl?.addEventListener("click", nextWord);
   speakWordBtnEl?.addEventListener("click", speakWord);
 
+  challengeBtnEl?.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    cycleChallengeTime();
+  });
+
   volButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const volName = button.dataset.vol;
-      if (volName) loadSheet(volName);
+      if (volName) {
+        loadSheet(volName);
+      }
     });
   });
 
@@ -137,40 +179,89 @@ function bindUIEvents() {
     const nextIndex = Number(target.dataset.index);
     if (Number.isNaN(nextIndex)) return;
 
-    index = nextIndex;
-    renderCurrentWord();
+    moveToIndex(nextIndex, { pushHistory: true });
+  });
+}
+
+function bindKeyboardEvents() {
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      prevWord();
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      nextWord();
+      return;
+    }
+
+    if (event.key === " " || event.code === "Space") {
+      event.preventDefault();
+      speakWord();
+      return;
+    }
+
+    if (event.key.toLowerCase() === "f") {
+      event.preventDefault();
+      toggleFavoriteCurrentWord();
+      return;
+    }
+
+    if (event.key.toLowerCase() === "r") {
+      event.preventDefault();
+      toggleRandomMode();
+    }
   });
 }
 
 function bindTouchEvents() {
-  document.addEventListener("touchstart", (event) => {
-    const touch = event.changedTouches[0];
-    if (!touch) return;
+  document.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
 
-    const startTarget = event.target instanceof Element ? event.target : null;
-    swipeEnabled = isSwipeAllowedTarget(startTarget);
-    touchStartX = touch.screenX;
-    touchStartY = touch.screenY;
-  }, { passive: true });
+      const startTarget = event.target instanceof Element ? event.target : null;
+      swipeEnabled = isSwipeAllowedTarget(startTarget);
+      touchStartX = touch.screenX;
+      touchStartY = touch.screenY;
+    },
+    { passive: true }
+  );
 
-  document.addEventListener("touchend", (event) => {
-    const touch = event.changedTouches[0];
-    if (!touch) return;
+  document.addEventListener(
+    "touchend",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
 
-    touchEndX = touch.screenX;
-    touchEndY = touch.screenY;
+      touchEndX = touch.screenX;
+      touchEndY = touch.screenY;
 
-    if (swipeEnabled) {
-      handleSwipe();
-    }
+      if (swipeEnabled) {
+        handleSwipe();
+      }
 
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-    swipeEnabled = false;
-  }, { passive: false });
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+      swipeEnabled = false;
+    },
+    { passive: false }
+  );
 }
 
 function isSwipeAllowedTarget(target) {
@@ -188,6 +279,7 @@ function loadSavedState() {
   const savedFavorites = localStorage.getItem(STORAGE_KEYS.favorites);
   const savedFavoritesUpdatedAt = localStorage.getItem(STORAGE_KEYS.favoritesUpdatedAt);
   const savedChallengeMode = localStorage.getItem(STORAGE_KEYS.challengeMode);
+  const savedChallengeTime = localStorage.getItem(STORAGE_KEYS.challengeTime);
   const savedRandomMode = localStorage.getItem(STORAGE_KEYS.randomMode);
 
   if (savedVol && sheetUrls[savedVol]) currentVol = savedVol;
@@ -216,18 +308,20 @@ function loadSavedState() {
   }
 
   if (savedChallengeMode !== null) challengeMode = savedChallengeMode === "true";
+
+  if (savedChallengeTime !== null) {
+    const parsedTime = Number(savedChallengeTime);
+    if (challengeTimes.includes(parsedTime)) {
+      challengeTime = parsedTime;
+    }
+  }
+
   if (savedRandomMode !== null) randomMode = savedRandomMode === "true";
 
   updateAutoSpeakButton();
   updateChallengeButton();
   updateRandomButton();
   applySidebarState();
-}
-
-function updateAuthUI() {
-  if (!loginBtnEl || !logoutBtnEl) return;
-  loginBtnEl.style.display = currentUser ? "none" : "inline-block";
-  logoutBtnEl.style.display = currentUser ? "inline-block" : "none";
 }
 
 function setupAuthListener() {
@@ -244,40 +338,15 @@ function setupAuthListener() {
 
     await loadFavoritesFromCloud();
     subscribeFavoritesRealtime();
-
     requestListRebuild();
     render();
   });
 }
 
-function subscribeFavoritesRealtime() {
-  if (!currentUser) return;
-
-  const ref = doc(db, "users", currentUser.uid);
-
-  favoritesUnsubscribe = onSnapshot(ref, (snap) => {
-    if (!snap.exists()) return;
-
-    const data = snap.data();
-    const cloudFavorites = data?.favorites && typeof data.favorites === "object" ? data.favorites : {};
-    const cloudUpdatedAt = Number(data?.favoritesUpdatedAt) || 0;
-
-    if (cloudUpdatedAt <= favoritesUpdatedAt) return;
-
-    favorites = cloudFavorites;
-    favoritesUpdatedAt = cloudUpdatedAt;
-    favoritesVersion += 1;
-    saveFavoritesToLocalOnly();
-    saveFavoritesUpdatedAt();
-    requestListRebuild();
-
-    if (currentMode === "favorites") {
-      applyWordOrder(false);
-      index = Math.min(index, Math.max(words.length - 1, 0));
-    }
-
-    render();
-  });
+function updateAuthUI() {
+  if (!loginBtnEl || !logoutBtnEl) return;
+  loginBtnEl.style.display = currentUser ? "none" : "inline-block";
+  logoutBtnEl.style.display = currentUser ? "inline-block" : "none";
 }
 
 async function signInWithGoogle() {
@@ -298,27 +367,70 @@ async function signOutUser() {
   }
 }
 
+function subscribeFavoritesRealtime() {
+  if (!currentUser) return;
+
+  const ref = doc(db, "users", currentUser.uid);
+
+  favoritesUnsubscribe = onSnapshot(ref, (snap) => {
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    const cloudFavorites = data?.favorites && typeof data.favorites === "object" ? data.favorites : {};
+    const cloudUpdatedAt = Number(data?.favoritesUpdatedAt) || 0;
+
+    if (cloudUpdatedAt <= favoritesUpdatedAt) return;
+
+    favorites = cloudFavorites;
+    favoritesUpdatedAt = cloudUpdatedAt;
+    favoritesVersion += 1;
+
+    saveFavoritesToLocalOnly();
+    saveFavoritesUpdatedAt();
+    clearAllShuffleCache();
+    requestListRebuild();
+
+    if (currentMode === "favorites") {
+      applyWordOrder(false);
+      index = Math.min(index, Math.max(words.length - 1, 0));
+    }
+
+    render();
+  });
+}
+
 function saveCurrentVol() {
   localStorage.setItem(STORAGE_KEYS.vol, currentVol);
 }
+
 function saveIndexByVol() {
   localStorage.setItem(STORAGE_KEYS.indexByVol, JSON.stringify(indexByVol));
 }
+
 function saveSidebarState() {
   localStorage.setItem(STORAGE_KEYS.sidebarOpen, String(sidebarOpen));
 }
+
 function saveAutoSpeakState() {
   localStorage.setItem(STORAGE_KEYS.autoSpeak, String(autoSpeak));
 }
+
 function saveFavoritesToLocalOnly() {
   localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
 }
+
 function saveFavoritesUpdatedAt() {
   localStorage.setItem(STORAGE_KEYS.favoritesUpdatedAt, String(favoritesUpdatedAt));
 }
+
 function saveChallengeModeState() {
   localStorage.setItem(STORAGE_KEYS.challengeMode, String(challengeMode));
 }
+
+function saveChallengeTimeState() {
+  localStorage.setItem(STORAGE_KEYS.challengeTime, String(challengeTime));
+}
+
 function saveRandomModeState() {
   localStorage.setItem(STORAGE_KEYS.randomMode, String(randomMode));
 }
@@ -368,8 +480,26 @@ async function saveFavoritesToCloud() {
   }
 }
 
+async function fetchWithRetry(url, retryCount = 1) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
 async function fetchWordsForVol(volName) {
-  const response = await fetch(sheetUrls[volName]);
+  const response = await fetchWithRetry(sheetUrls[volName], 1);
   const text = await response.text();
   return parseCsvToWords(text, volName);
 }
@@ -386,13 +516,6 @@ async function ensureAllVolumesLoaded() {
   }
 }
 
-/**
- * 簡易CSVパーサ
- * - カンマ
- * - ダブルクォート
- * - セル内改行
- * に対応
- */
 function parseCsv(text) {
   const rows = [];
   let row = [];
@@ -442,12 +565,35 @@ function parseCsv(text) {
 }
 
 function parseCsvToWords(text, volName) {
-  return parseCsv(text)
-    .map((cols) => {
-      const trimmedCols = cols.map((col) => String(col ?? "").trim());
-      const word = trimmedCols[0] || "";
-      const meaning = trimmedCols.slice(1).join(",").replace(/,+$/, "").trim();
-      return { word, meaning, sourceVol: volName };
+  const rows = parseCsv(text)
+    .map((cols) => cols.map((col) => String(col ?? "").trim()))
+    .filter((cols) => cols.some((col) => col !== ""));
+
+  let startIndex = 0;
+  if (rows.length > 0) {
+    const firstCell = (rows[0][0] || "").toLowerCase();
+    const secondCell = (rows[0][1] || "").toLowerCase();
+    if (
+      firstCell === "word" ||
+      firstCell === "単語" ||
+      secondCell === "meaning" ||
+      secondCell === "意味"
+    ) {
+      startIndex = 1;
+    }
+  }
+
+  return rows.slice(startIndex)
+    .map((cols, rowIndex) => {
+      const word = cols[0] || "";
+      const meaning = cols.slice(1).join(",").replace(/,+$/, "").trim();
+      const id = `${volName}-${rowIndex + startIndex}-${normalizeWord(word)}`;
+      return {
+        id,
+        word,
+        meaning,
+        sourceVol: volName
+      };
     })
     .filter((item) => item.word);
 }
@@ -456,20 +602,55 @@ async function loadSheet(volName) {
   try {
     currentMode = "vol";
     currentVol = volName;
+    clearNavigationHistory();
     saveCurrentVol();
 
     await ensureVolLoaded(volName);
-
     applyWordOrder(false);
+
     index = Math.min(indexByVol[volName] || 0, Math.max(words.length - 1, 0));
+
     requestListRebuild();
     render();
     finishInitialLoading();
+
+    preloadOtherVolumesInBackground();
   } catch (error) {
     console.error(error);
     finishInitialLoading();
     alert("読み込みに失敗しました。スプレッドシートの共有設定をご確認ください。");
   }
+}
+
+async function preloadOtherVolumesInBackground() {
+  const otherVols = volOrder.filter((vol) => vol !== currentVol);
+  for (const vol of otherVols) {
+    ensureVolLoaded(vol).catch(() => {});
+  }
+}
+
+function normalizeWord(word) {
+  return String(word).toLowerCase().trim();
+}
+
+function makeFavoriteKey(item) {
+  return item.id;
+}
+
+function isFavorite(item) {
+  return !!favorites[makeFavoriteKey(item)];
+}
+
+function buildFavoriteEntries() {
+  const entries = [];
+  volOrder.forEach((vol) => {
+    (allWordsByVol[vol] || []).forEach((item) => {
+      if (isFavorite(item)) {
+        entries.push(item);
+      }
+    });
+  });
+  return entries;
 }
 
 function makeShuffleKey() {
@@ -485,18 +666,6 @@ function shuffleArray(array) {
   return copied;
 }
 
-function buildFavoriteEntries() {
-  const entries = [];
-  volOrder.forEach((vol) => {
-    (allWordsByVol[vol] || []).forEach((item) => {
-      if (isFavorite(vol, item.word)) {
-        entries.push({ ...item, sourceVol: vol });
-      }
-    });
-  });
-  return entries;
-}
-
 function applyWordOrder(resetIndex = false) {
   const baseWords = currentMode === "favorites"
     ? buildFavoriteEntries()
@@ -506,7 +675,12 @@ function applyWordOrder(resetIndex = false) {
     const shuffleKey = makeShuffleKey();
     const currentCache = shuffledWordsMap[shuffleKey];
 
-    if (!Array.isArray(currentCache) || currentCache.length !== baseWords.length) {
+    const cacheValid =
+      Array.isArray(currentCache) &&
+      currentCache.length === baseWords.length &&
+      currentCache.every((item, i) => item.id === currentCache[i].id);
+
+    if (!cacheValid) {
       shuffledWordsMap[shuffleKey] = shuffleArray(baseWords);
     }
 
@@ -522,67 +696,37 @@ function clearAllShuffleCache() {
   shuffledWordsMap = {};
 }
 
-async function loadPronunciation(word) {
-  const normalizedWord = String(word).toLowerCase().trim();
-  const key = `pron_${normalizedWord}`;
-  if (!pronunciationEl) return;
-
-  lastPronunciationRequest = normalizedWord;
-
-  const cached = localStorage.getItem(key);
-  if (cached !== null) {
-    pronunciationEl.textContent = cached || "発音記号なし";
-    return;
-  }
-
-  if (currentPronunciationController) {
-    currentPronunciationController.abort();
-  }
-
-  currentPronunciationController = new AbortController();
-  pronunciationEl.textContent = "…";
-
-  try {
-    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`, {
-      signal: currentPronunciationController.signal
-    });
-    const data = await response.json();
-
-    let phonetic = "";
-    if (Array.isArray(data) && data[0]) {
-      if (data[0].phonetic) {
-        phonetic = data[0].phonetic;
-      } else if (Array.isArray(data[0].phonetics)) {
-        const found = data[0].phonetics.find((item) => item && item.text);
-        phonetic = found ? found.text : "";
-      }
-    }
-
-    phonetic = phonetic.replace(/^\/|\/$/g, "");
-    localStorage.setItem(key, phonetic);
-
-    const current = getCurrentWord();
-    const currentWord = current ? String(current.word).toLowerCase().trim() : "";
-    if (lastPronunciationRequest === normalizedWord && currentWord === normalizedWord) {
-      pronunciationEl.textContent = phonetic || "発音記号なし";
-    }
-  } catch (error) {
-    if (error.name !== "AbortError") {
-      const current = getCurrentWord();
-      const currentWord = current ? String(current.word).toLowerCase().trim() : "";
-      if (lastPronunciationRequest === normalizedWord && currentWord === normalizedWord) {
-        pronunciationEl.textContent = "";
-      }
-    }
-  }
+function clearNavigationHistory() {
+  historyBackStack = [];
+  historyForwardStack = [];
 }
 
-function makeFavoriteKey(vol, word) {
-  return `${vol}::${String(word).toLowerCase().trim()}`;
+function moveToIndex(nextIndex, { pushHistory = false } = {}) {
+  if (!words.length) return;
+  if (nextIndex < 0 || nextIndex >= words.length) return;
+  if (nextIndex === index) return;
+
+  if (pushHistory) {
+    historyBackStack.push(index);
+    historyForwardStack = [];
+  }
+
+  index = nextIndex;
+  renderCurrentWord();
 }
 
-function isFavorite(vol, word) {
-  return !!favorites[makeFavoriteKey(vol, word)];
+function getRandomPrevIndexFromHistory() {
+  if (!historyBackStack.length) return null;
+  const prev = historyBackStack.pop();
+  historyForwardStack.push(index);
+  return prev;
+}
+
+function getRandomNextIndexFromHistory() {
+  if (!historyForwardStack.length) return null;
+  const next = historyForwardStack.pop();
+  historyBackStack.push(index);
+  return next;
 }
 
 function requestListRebuild() {
@@ -627,7 +771,7 @@ function renderList() {
       : item.word;
     row.appendChild(label);
 
-    if (isFavorite(item.sourceVol, item.word)) {
+    if (isFavorite(item)) {
       const star = document.createElement("span");
       star.className = "item-star";
       star.textContent = "★";
@@ -649,11 +793,12 @@ function renderCurrentWord() {
 
   const current = getCurrentWord();
   if (!current) {
-    if (wordEl) wordEl.textContent = "単語がありません";
-    if (meaningEl) meaningEl.textContent = "";
+    if (wordEl) wordEl.textContent = currentMode === "favorites" ? "お気に入りがありません" : "単語がありません";
+    if (meaningEl) meaningEl.textContent = currentMode === "favorites" ? "☆を付けるとここに表示されます" : "";
     if (pronunciationEl) pronunciationEl.textContent = "";
     if (prevHintEl) prevHintEl.textContent = "";
     if (nextHintEl) nextHintEl.textContent = "";
+    if (statusLineEl) statusLineEl.textContent = "";
     updateFavoriteToggleButton();
     return;
   }
@@ -675,6 +820,7 @@ function updateCurrentStateMeta() {
   scrollActiveWordIntoView(activeItem);
   updateNavHints();
   updateFavoriteToggleButton();
+  updateStatusLine();
 }
 
 function persistCurrentIndex() {
@@ -688,7 +834,16 @@ function persistCurrentIndex() {
 
 function updateCurrentLabel() {
   if (!currentEl) return;
-  currentEl.textContent = currentMode === "favorites" ? "★" : `vol.${currentVol.replace("vol", "")}`;
+
+  let label = currentMode === "favorites"
+    ? "☆一覧"
+    : `vol.${currentVol.replace("vol", "")}`;
+
+  if (randomMode) {
+    label += " / ランダム";
+  }
+
+  currentEl.textContent = label;
 }
 
 function updateTopButtons() {
@@ -713,10 +868,11 @@ function updateFavoriteToggleButton() {
   const current = getCurrentWord();
   if (!favoriteToggleBtnEl || !current) return;
 
-  const active = isFavorite(current.sourceVol, current.word);
+  const active = isFavorite(current);
   favoriteToggleBtnEl.textContent = active ? "★" : "☆";
   favoriteToggleBtnEl.classList.toggle("active", active);
   favoriteToggleBtnEl.title = active ? "★解除" : "★登録";
+  favoriteToggleBtnEl.setAttribute("aria-label", active ? "お気に入り解除" : "お気に入り登録");
 }
 
 function updateNavHints() {
@@ -727,10 +883,33 @@ function updateNavHints() {
     return;
   }
 
-  const prevIndex = (index - 1 + words.length) % words.length;
-  const nextIndex = (index + 1) % words.length;
+  const prevIndex = randomMode && historyBackStack.length
+    ? historyBackStack[historyBackStack.length - 1]
+    : (index - 1 + words.length) % words.length;
+
+  const nextIndex = randomMode && historyForwardStack.length
+    ? historyForwardStack[historyForwardStack.length - 1]
+    : (index + 1) % words.length;
+
   prevHintEl.textContent = words[prevIndex]?.word || "";
   nextHintEl.textContent = words[nextIndex]?.word || "";
+}
+
+function updateStatusLine() {
+  if (!statusLineEl) return;
+
+  const parts = [];
+  if (challengeMode) {
+    parts.push(`想起学習 ${challengeTime / 1000}秒`);
+  }
+  if (autoSpeak) {
+    parts.push("自動発音 ON");
+  }
+  if (randomMode) {
+    parts.push("ランダム ON");
+  }
+
+  statusLineEl.textContent = parts.join(" / ");
 }
 
 function updateAutoSpeakButton() {
@@ -738,11 +917,26 @@ function updateAutoSpeakButton() {
 }
 
 function updateChallengeButton() {
-  updateToggleButton(challengeBtnEl, "想起学習", challengeMode);
+  const label = challengeMode
+    ? `想起学習 ${challengeTime / 1000}秒`
+    : "想起学習";
+  updateToggleButton(challengeBtnEl, label, challengeMode);
 }
 
 function updateRandomButton() {
   updateToggleButton(randomBtnEl, "ランダム", randomMode);
+}
+
+function cycleChallengeTime() {
+  const currentIndex = challengeTimes.indexOf(challengeTime);
+  const nextIndex = (currentIndex + 1) % challengeTimes.length;
+  challengeTime = challengeTimes[nextIndex];
+  saveChallengeTimeState();
+  updateChallengeButton();
+
+  if (challengeMode) {
+    renderCurrentWord();
+  }
 }
 
 function updateMeaningDisplay(meaning) {
@@ -757,7 +951,7 @@ function updateMeaningDisplay(meaning) {
   meaningEl.textContent = "・・・";
   meaningRevealTimer = setTimeout(() => {
     meaningEl.textContent = meaning;
-  }, 1500);
+  }, challengeTime);
 }
 
 function highlightActiveWord() {
@@ -785,6 +979,7 @@ function scrollActiveWordIntoView(activeItem) {
 function applySidebarState() {
   if (!sidebarEl) return;
   sidebarEl.classList.toggle("hidden", !sidebarOpen);
+  toggleSidebarBtnEl?.classList.toggle("active", sidebarOpen);
 }
 
 function clearMeaningRevealTimer() {
@@ -803,7 +998,9 @@ function clearAutoSpeakTimer() {
 
 function scheduleAutoSpeak() {
   if (!autoSpeak) return;
-  autoSpeakTimer = setTimeout(() => speakWord(), 150);
+  autoSpeakTimer = setTimeout(() => {
+    speakWord();
+  }, 260);
 }
 
 function getCurrentWord() {
@@ -820,13 +1017,21 @@ function toggleAutoSpeak() {
   autoSpeak = !autoSpeak;
   saveAutoSpeakState();
   updateAutoSpeakButton();
-  if (!autoSpeak) clearAutoSpeakTimer();
+
+  if (!autoSpeak) {
+    clearAutoSpeakTimer();
+  } else {
+    scheduleAutoSpeak();
+  }
+
+  updateStatusLine();
 }
 
 function toggleChallengeMode() {
   challengeMode = !challengeMode;
   saveChallengeModeState();
   updateChallengeButton();
+  updateStatusLine();
   renderCurrentWord();
 }
 
@@ -834,6 +1039,7 @@ function toggleRandomMode() {
   randomMode = !randomMode;
   saveRandomModeState();
   updateRandomButton();
+  clearNavigationHistory();
 
   if (!randomMode) {
     clearAllShuffleCache();
@@ -855,13 +1061,16 @@ function touchFavoritesChanged() {
 
 function toggleFavoriteCurrentWord() {
   const current = getCurrentWord();
-  if (!current || !current.sourceVol) return;
+  if (!current) return;
 
-  const key = makeFavoriteKey(current.sourceVol, current.word);
+  const key = makeFavoriteKey(current);
+
   if (favorites[key]) {
     delete favorites[key];
   } else {
-    favorites[key] = true;
+    favorites[key] = {
+      addedAt: Date.now()
+    };
   }
 
   touchFavoritesChanged();
@@ -872,15 +1081,18 @@ function toggleFavoriteCurrentWord() {
   }
 
   if (currentMode === "favorites") {
-    const favoriteEntries = buildFavoriteEntries();
-    if (favoriteEntries.length === 0) {
+    const currentId = current.id;
+    applyWordOrder(false);
+
+    const nextIndex = words.findIndex((item) => item.id === currentId);
+    index = nextIndex >= 0 ? nextIndex : Math.min(index, Math.max(words.length - 1, 0));
+
+    if (words.length === 0) {
       currentMode = "vol";
       loadSheet(currentVol);
       return;
     }
 
-    applyWordOrder(false);
-    index = Math.min(index, words.length - 1);
     indexByVol.favorites = index;
     saveIndexByVol();
   }
@@ -890,13 +1102,15 @@ function toggleFavoriteCurrentWord() {
 
 async function loadFavoritesMode() {
   await ensureAllVolumesLoaded();
+
   const favoriteEntries = buildFavoriteEntries();
   if (favoriteEntries.length === 0) {
-    alert("★未登録");
+    alert("☆未登録");
     return;
   }
 
   currentMode = "favorites";
+  clearNavigationHistory();
   applyWordOrder(false);
   index = Math.min(indexByVol.favorites || 0, words.length - 1);
   requestListRebuild();
@@ -905,26 +1119,114 @@ async function loadFavoritesMode() {
 
 function prevWord() {
   if (!words.length) return;
-  index = (index - 1 + words.length) % words.length;
-  renderCurrentWord();
+
+  if (randomMode) {
+    const historyIndex = getRandomPrevIndexFromHistory();
+    if (historyIndex !== null) {
+      index = historyIndex;
+      renderCurrentWord();
+      return;
+    }
+  }
+
+  const prevIndex = (index - 1 + words.length) % words.length;
+  moveToIndex(prevIndex, { pushHistory: randomMode });
 }
 
 function nextWord() {
   if (!words.length) return;
-  index = (index + 1) % words.length;
-  renderCurrentWord();
+
+  if (randomMode) {
+    const historyIndex = getRandomNextIndexFromHistory();
+    if (historyIndex !== null) {
+      index = historyIndex;
+      renderCurrentWord();
+      return;
+    }
+  }
+
+  const nextIndex = (index + 1) % words.length;
+  moveToIndex(nextIndex, { pushHistory: randomMode });
+}
+
+function updateSpeechButtonAvailability() {
+  const supported = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  if (!speakWordBtnEl) return;
+
+  speakWordBtnEl.disabled = !supported;
+  speakWordBtnEl.style.opacity = supported ? "1" : "0.5";
+  speakWordBtnEl.title = supported ? "発音" : "この端末では発音未対応";
 }
 
 function speakWord() {
   const current = getCurrentWord();
   if (!current) return;
+  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
 
-  speechSynthesis.cancel();
+  window.speechSynthesis.cancel();
+
   const utterance = new SpeechSynthesisUtterance(current.word);
   utterance.lang = "en-US";
   utterance.rate = 0.9;
   utterance.pitch = 1.0;
-  speechSynthesis.speak(utterance);
+
+  window.speechSynthesis.speak(utterance);
+}
+
+async function loadPronunciation(word) {
+  if (!pronunciationEl) return;
+
+  const normalizedWord = normalizeWord(word);
+  const key = `pron_${normalizedWord}`;
+  lastPronunciationRequest = normalizedWord;
+
+  const cached = localStorage.getItem(key);
+  if (cached !== null) {
+    pronunciationEl.textContent = cached || "発音記号なし";
+    return;
+  }
+
+  if (currentPronunciationController) {
+    currentPronunciationController.abort();
+  }
+
+  currentPronunciationController = new AbortController();
+  pronunciationEl.textContent = "…";
+
+  try {
+    const response = await fetch(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`,
+      { signal: currentPronunciationController.signal }
+    );
+    const data = await response.json();
+
+    let phonetic = "";
+    if (Array.isArray(data) && data[0]) {
+      if (data[0].phonetic) {
+        phonetic = data[0].phonetic;
+      } else if (Array.isArray(data[0].phonetics)) {
+        const found = data[0].phonetics.find((item) => item && item.text);
+        phonetic = found ? found.text : "";
+      }
+    }
+
+    phonetic = phonetic.replace(/^\/|\/$/g, "");
+    localStorage.setItem(key, phonetic);
+
+    const current = getCurrentWord();
+    const currentWord = current ? normalizeWord(current.word) : "";
+    if (lastPronunciationRequest === normalizedWord && currentWord === normalizedWord) {
+      pronunciationEl.textContent = phonetic || "発音記号なし";
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      const current = getCurrentWord();
+      const currentWord = current ? normalizeWord(current.word) : "";
+      if (lastPronunciationRequest === normalizedWord && currentWord === normalizedWord) {
+        pronunciationEl.textContent = "";
+      }
+    }
+  }
 }
 
 function handleSwipe() {
