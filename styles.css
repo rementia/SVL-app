@@ -555,3 +555,14 @@ body.loading {
     color: #111111;
   }
 }
+
+/* PCのときだけ表示 */
+.help-line {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .help-line {
+    display: block;
+  }
+}
