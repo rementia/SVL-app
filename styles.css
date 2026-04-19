@@ -542,7 +542,6 @@ body.loading {
   /* ボタンをコンパクトに */
   .main-btn {
     padding: 14px 22px;
-    font-size: clamp(14px, 2vw, 20px);
   }
 
   /* ボタン間の余白を詰める */
