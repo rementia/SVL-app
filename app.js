@@ -793,8 +793,16 @@ function renderCurrentWord() {
 
   const current = getCurrentWord();
   if (!current) {
-    if (wordEl) wordEl.textContent = currentMode === "favorites" ? "お気に入りがありません" : "単語がありません";
-    if (meaningEl) meaningEl.textContent = currentMode === "favorites" ? "☆を付けるとここに表示されます" : "";
+    if (wordEl) {
+      wordEl.textContent = currentMode === "favorites"
+        ? "お気に入りがありません"
+        : "単語がありません";
+    }
+    if (meaningEl) {
+      meaningEl.textContent = currentMode === "favorites"
+        ? "☆を付けるとここに表示されます"
+        : "";
+    }
     if (progressEl) progressEl.textContent = "";
     if (pronunciationEl) pronunciationEl.textContent = "";
     if (prevHintEl) prevHintEl.textContent = "";
