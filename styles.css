@@ -186,6 +186,7 @@ body.loading {
 .toggle-btn.active {
   background: var(--accent);
   color: var(--accent-contrast);
+  border-color: var(--border-strong);
 }
 
 .control-stack {

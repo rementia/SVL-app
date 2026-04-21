@@ -844,7 +844,7 @@ function updateCurrentLabel() {
   if (!currentEl) return;
 
   let label = currentMode === "favorites"
-    ? "☆一覧"
+    ? "☆"
     : `vol.${currentVol.replace("vol", "")}`;
 
   if (randomMode) {
