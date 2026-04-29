@@ -923,6 +923,10 @@ function updateAutoSpeakButton() {
 
 function updateChallengeButton() {
   updateToggleButton(challengeBtnEl, "想起学習", challengeMode);
+
+  if (challengeBtnEl) {
+    challengeBtnEl.title = `想起学習（${challengeTime / 1000}秒）`;
+  }
 }
 
 function updateRandomButton() {
@@ -933,8 +937,11 @@ function cycleChallengeTime() {
   const currentIndex = challengeTimes.indexOf(challengeTime);
   const nextIndex = (currentIndex + 1) % challengeTimes.length;
   challengeTime = challengeTimes[nextIndex];
+
   saveChallengeTimeState();
   updateChallengeButton();
+
+  alert(`${challengeTime / 1000}秒`);
 
   if (challengeMode) {
     renderCurrentWord();
