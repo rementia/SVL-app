@@ -941,8 +941,6 @@ function cycleChallengeTime() {
   saveChallengeTimeState();
   updateChallengeButton();
 
-  alert(`${challengeTime / 1000}秒`);
-
   if (challengeMode) {
     renderCurrentWord();
   }
