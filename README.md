@@ -1,29 +1,37 @@
 # English Vocabulary App
 
-想起学習と効率的な復習に焦点を当てた、Webベースの英単語学習アプリです。
+A web-based vocabulary learning app focused on recall-based learning and efficient review.
+
+## Screenshots
+
+![Main Screen](./images/main.png)
+
+## Demo
+
+👉 https://rementia.github.io/vocab-app/
 
 ---
 
-## 概要
+## Overview
 
-このアプリは、単なる暗記ではなく**想起（思い出す）学習**を重視することで、英単語の定着を向上させることを目的としています。
+This app focuses on **recall-based learning**, rather than simple memorization, to improve long-term retention of English vocabulary.
 
-ユーザーは短時間で意味を思い出す練習を行い、お気に入り機能や各種モードを使って効率的に復習できます。
-
----
-
-## 主な機能
-
-* レベル別学習（vol.1〜4）
-* ランダムモード
-* お気に入り単語管理（☆）
-* 発音機能
-* 想起学習モード（時間制限付き）
-* レスポンシブ対応（スマートフォン対応）
+Users practice recalling meanings within a short time, and efficiently review words using features such as favorites and multiple learning modes.
 
 ---
 
-## 使用技術
+## Features
+
+* Level-based learning (vol.1–4)
+* Random mode
+* Favorite word management (★)
+* Pronunciation feature
+* Recall mode (time-limited)
+* Responsive design (mobile support)
+
+---
+
+## Technologies
 
 * HTML
 * CSS
@@ -32,44 +40,38 @@
 
 ---
 
-## 使い方
+## Usage
 
-1. レベル（vol.1〜4）を選択
-2. 短時間で意味を思い出す
-3. 以下の操作が可能：
+1. Select a level (vol.1–4)
+2. Try to recall the meaning within a short time
+3. Available controls:
 
-   * `← →`：前後移動
-   * `Space`：発音
-   * `F`：お気に入り登録・解除
-4. ランダムモードやお気に入りを使って復習
-
----
-
-## 工夫した点
-
-本アプリでは以下を重視しています：
-
-* 単語を**日本語訳ではなく意味のつながりとして捉えること**
-* **時間を空けた想起**による記憶の定着
-* 苦手な単語を見つけて効率的に復習する仕組み
+   * `← →` : Navigate words
+   * `Space` : Pronounce
+   * `F` : Toggle favorite
+4. Use random mode or favorites for efficient review
 
 ---
 
-## 今後の改善
+## Key Design Ideas
 
-* スマホ横画面でのUI改善
-* 進捗表示の強化
-* ランダム機能の改善
-* データ保存機能の強化
+This app is designed with the following principles:
 
----
-
-## デモ
-
-👉 https://rementia.github.io/vocab-app/
+* Treat vocabulary as **connected meanings rather than isolated translations**
+* Improve retention through **spaced recall**
+* Enable efficient review by identifying and focusing on difficult words
 
 ---
 
-## 作者
+## Future Improvements
 
-匿名希望
+* Improve UI for landscape mode on mobile
+* Enhance progress tracking
+* Improve random mode behavior
+* Strengthen data persistence features
+
+---
+
+## Author
+
+Anonymous
