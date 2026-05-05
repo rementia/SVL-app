@@ -66,7 +66,7 @@
 
 ## デモ
 
-👉 https://rementia.github.io/word-app/
+👉 https://rementia.github.io/vocab-app/
 
 ---
 
