@@ -1,4 +1,4 @@
-# SVL Vocabulary App
+# English Vocabulary App
 
 想起学習と効率的な復習に焦点を当てた、Webベースの英単語学習アプリです。
 
@@ -66,7 +66,7 @@
 
 ## デモ
 
-👉 https://rementia.github.io/SVL-app/
+👉 https://rementia.github.io/word-app/
 
 ---
 
