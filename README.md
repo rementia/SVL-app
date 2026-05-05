@@ -66,10 +66,10 @@
 
 ## デモ
 
-👉 https://（ここにGitHub PagesのURL）
+👉 https://rementia.github.io/SVL-app/
 
 ---
 
 ## 作者
 
-主様 によって作成
+匿名希望
