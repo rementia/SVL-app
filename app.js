@@ -124,6 +124,8 @@ let touchEndX = 0;
 let touchEndY = 0;
 let lastTouchEnd = 0;
 let touchStartTime = 0;
+let touchLaastMoveTime = 0;
+let longPressSwipeDisable = false;
 let swipeEnabled = false;
 
 /**
@@ -253,6 +255,7 @@ function bindTouchEvents() {
     "touchstart",
     (event) => {
       touchStartTime = Date.now();
+      longPressSwipeDisable = false;
       const touch = event.changedTouches[0];
       if (!touch) return;
 
@@ -265,12 +268,30 @@ function bindTouchEvents() {
   );
 
   document.addEventListener(
+    "touchmove",
+    (event) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+
+      const diffX = Math.abs(touch.screenX - touchStartX);
+      const diffY = Math.abs(touch.screenY - touchStartY);
+
+      if(diffX > 8 || diffY > 8) {
+        touchLaastMoveTime = Date.now();
+      }
+
+      if(Date.now() - touchLastMoveTime >= challengeTime){
+        longPressSwipeDisable = true;
+      }
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
     "touchend",
     (event) => {
       const touch = event.changedTouches[0];
-      const touchDuration = Date.now() - touchStartTime;
-
-      if (touchDuration >= challengeTime) {
+      if (longPressSwipeDisable) {
         swipeEnabled = false;
         return;
       }
