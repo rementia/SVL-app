@@ -421,6 +421,15 @@ body.loading {
   padding: 8px 12px;
 }
 
+.recall-time-control {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.recall-time-control input{
+  width: 160px;
+}
+
 @media (max-width: 900px) {
   :root {
     --sidebar-width: 118px;

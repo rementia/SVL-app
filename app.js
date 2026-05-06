@@ -60,6 +60,8 @@ const pronunciationEl = document.getElementById("pronunciation");
 const prevHintEl = document.getElementById("prevHint");
 const nextHintEl = document.getElementById("nextHint");
 const currentEl = document.getElementById("current");
+const timeSlider = document.getElementById("timeSlider");
+const timeValue = document.getElementById("timeValue");
 
 const favoriteToggleBtnEl = document.getElementById("favoriteToggleBtn");
 const favoriteListBtnEl = document.getElementById("favoriteListBtn");
@@ -162,6 +164,26 @@ function bindUIEvents() {
     event.preventDefault();
     cycleChallengeTime();
   });
+
+  if (timeSlider) {
+
+      timeSlider.value = challengeTime / 1000;
+      timeValue.textContent = challengeTime / 1000;
+
+      timeSlider.addEventListener("input", () => {
+
+        challengeTime = parseFloat(timeSlider.value) * 1000;
+
+        timeValue.textContent = timeSlider.value;
+
+        saveChallengeTimeState();
+
+        if (challengeMode) {
+          renderCurrentWord();
+        }
+
+      });
+    }
 
   volButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -713,6 +735,7 @@ function moveToIndex(nextIndex, { pushHistory = false } = {}) {
 
   index = nextIndex;
   renderCurrentWord();
+  scheduleAutoSpeak();
 }
 
 function getRandomPrevIndexFromHistory() {
@@ -815,7 +838,6 @@ function renderCurrentWord() {
   updateMeaningDisplay(current.meaning);
   updateCurrentStateMeta();
   loadPronunciation(current.word);
-  scheduleAutoSpeak();
 }
 
 function renderWordText(current) {
