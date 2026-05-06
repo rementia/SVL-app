@@ -124,8 +124,6 @@ let touchEndX = 0;
 let touchEndY = 0;
 let lastTouchEnd = 0;
 let touchStartTime = 0;
-let touchLastMoveTime = 0;
-let longPressSwipeDisabled = false;
 let swipeEnabled = false;
 
 /**
@@ -292,12 +290,14 @@ function bindTouchEvents() {
     "touchend",
     (event) => {
       const touch = event.changedTouches[0];
-      if (longPressSwipeDisabled) {
+      if (!touch) return;
+
+      const touchDuration = Date.now() - touchStartTime;
+
+      if(touchDuration >= 1000) {
         swipeEnabled = false;
         return;
       }
-
-      if (!touch) return;
 
       touchEndX = touch.screenX;
       touchEndY = touch.screenY;
