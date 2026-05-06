@@ -45,6 +45,14 @@
             ★
           </button>
         </div>
+        <div class="recall-time-control">
+          <label for="timeSlider">
+            Recall Time:
+            <span id="timeValue">1.5</span>s
+          </label>
+
+          <input type="range" id="timeSlider" min="0.5" max="5" step="0.1" value="1.5">
+        </div>
       </div>
 
       <div class="header-right">
@@ -99,14 +107,6 @@
               ☆
             </button>
           </div>
-
-          <div class="recall-time-control">
-            <label for="timeSlider">
-              Recall Time:
-              <span id="timeValue">1.5</span>s
-            </label>
-
-            <input type="range" id="timeSlider" min="0.5" max="5" step="0.1" value="1.5">
 
           <div id="word">読み込み中...</div>
           <div id="meaning"></div>
