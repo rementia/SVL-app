@@ -575,6 +575,10 @@ body.loading {
   .help-line {
     display: none;
   }
+
+  .main{
+    align-items: flex-start;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

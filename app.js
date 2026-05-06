@@ -126,6 +126,8 @@ let lastTouchEnd = 0;
 let touchStartTime = 0;
 let swipeEnabled = false;
 
+let viewportResizeTimer = null;
+
 /**
  * ランダム中の「戻る」を履歴ベースにするための履歴
  */
@@ -139,13 +141,35 @@ function init() {
   bindKeyboardEvents();
   setupAuthListener();
   updateSpeechButtonAvailability();
+
+  window.addEventListener("resize", handleViewportChange);
+  window.addEventListener("orientationchange", handleViewportChange);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", handleViewportChange);
+  }
+
   loadSheet(currentVol);
+}
+
+function handleViewportChange() {
+  clearTimeout(viewportResizeTimer);
+  viewportResizeTimer = setTimeout(() => {
+    render();
+  }, 250);
 }
 
 function finishInitialLoading() {
   if (hasFinishedInitialLoading) return;
   hasFinishedInitialLoading = true;
-  document.body.classList.remove("loading");
+
+  requestAnimationFrame(() => {
+    document.body.classList.remove("loading");
+
+    requestAnimationFrame(() => {
+      render();
+    });
+  });
 }
 
 function bindUIEvents() {
