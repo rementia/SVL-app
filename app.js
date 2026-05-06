@@ -123,6 +123,7 @@ let touchStartY = 0;
 let touchEndX = 0;
 let touchEndY = 0;
 let lastTouchEnd = 0;
+let touchStartTime = 0;
 let swipeEnabled = false;
 
 /**
@@ -168,13 +169,13 @@ function bindUIEvents() {
   if (timeSlider) {
 
       timeSlider.value = challengeTime / 1000;
-      timeValue.textContent = challengeTime / 1000;
+      timeValue.textContent = (challengeTime / 1000).toFixed(1);
 
       timeSlider.addEventListener("input", () => {
 
         challengeTime = parseFloat(timeSlider.value) * 1000;
 
-        timeValue.textContent = timeSlider.value;
+        timeValue.textContent = parseFloat(timeSlider.value).toFixed(1);
 
         saveChallengeTimeState();
 
@@ -251,6 +252,7 @@ function bindTouchEvents() {
   document.addEventListener(
     "touchstart",
     (event) => {
+      touchStartTime = Date.now();
       const touch = event.changedTouches[0];
       if (!touch) return;
 
@@ -266,6 +268,13 @@ function bindTouchEvents() {
     "touchend",
     (event) => {
       const touch = event.changedTouches[0];
+      const touchDuration = Date.now() - touchStartTime;
+
+      if (touchDuration >= challengeTime) {
+        swipeEnabled = false;
+        return;
+      }
+
       if (!touch) return;
 
       touchEndX = touch.screenX;
